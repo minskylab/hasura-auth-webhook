@@ -24,10 +24,29 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
-	// Password holds the value of the "password" field.
-	Password string `json:"-"`
-	// Token holds the value of the "token" field.
-	Token string `json:"token,omitempty"`
+	// HashedPassword holds the value of the "hashedPassword" field.
+	HashedPassword string `json:"-"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges UserEdges `json:"edges"`
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// Roles holds the value of the roles edge.
+	Roles []*Role `json:"roles,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// RolesOrErr returns the Roles value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) RolesOrErr() ([]*Role, error) {
+	if e.loadedTypes[0] {
+		return e.Roles, nil
+	}
+	return nil, &NotLoadedError{edge: "roles"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -35,7 +54,7 @@ func (*User) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldEmail, user.FieldPassword, user.FieldToken:
+		case user.FieldEmail, user.FieldHashedPassword:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -80,21 +99,20 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				u.Email = value.String
 			}
-		case user.FieldPassword:
+		case user.FieldHashedPassword:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field password", values[i])
+				return fmt.Errorf("unexpected type %T for field hashedPassword", values[i])
 			} else if value.Valid {
-				u.Password = value.String
-			}
-		case user.FieldToken:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field token", values[i])
-			} else if value.Valid {
-				u.Token = value.String
+				u.HashedPassword = value.String
 			}
 		}
 	}
 	return nil
+}
+
+// QueryRoles queries the "roles" edge of the User entity.
+func (u *User) QueryRoles() *RoleQuery {
+	return (&UserClient{config: u.config}).QueryRoles(u)
 }
 
 // Update returns a builder for updating this User.
@@ -126,9 +144,7 @@ func (u *User) String() string {
 	builder.WriteString(u.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", email=")
 	builder.WriteString(u.Email)
-	builder.WriteString(", password=<sensitive>")
-	builder.WriteString(", token=")
-	builder.WriteString(u.Token)
+	builder.WriteString(", hashedPassword=<sensitive>")
 	builder.WriteByte(')')
 	return builder.String()
 }

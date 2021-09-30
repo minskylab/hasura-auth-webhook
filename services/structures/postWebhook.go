@@ -11,8 +11,6 @@ type PostWebhookReq struct {
 }
 
 type PostWebhookRes struct {
-	HasuraUserId  string `json:"X-Hasura-User-Id"`
-	HasuraRole    string `json:"X-Hasura-Role"`
-	HasuraIsOwner string `json:"X-Hasura-Is-Owner"`
-	HasuraCustom  string `json:"X-Hasura-Custom"`
+	HasuraUserId string `json:"X-Hasura-User-Id"`
+	HasuraRole   string `json:"X-Hasura-Role"`
 }

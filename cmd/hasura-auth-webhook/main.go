@@ -1,11 +1,13 @@
 package main
 
 import (
+	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
 
 	haw "github.com/minskylab/hasura-auth-webhook"
 	"github.com/minskylab/hasura-auth-webhook/config"
 	"github.com/minskylab/hasura-auth-webhook/db"
+	"github.com/minskylab/hasura-auth-webhook/guardian"
 	"github.com/minskylab/hasura-auth-webhook/server"
 	"github.com/minskylab/hasura-auth-webhook/services/routes"
 )
@@ -21,7 +23,12 @@ func main() {
 	}
 	defer client.Close()
 
-	engine, err := haw.CreateNewEngine(client, nil, false)
+	authStrategy, err := guardian.SetupAuth()
+	if err != nil {
+		log.Panicf("%+v", err)
+	}
+
+	engine, err := haw.CreateNewEngine(client, authStrategy, false)
 	if err != nil {
 		log.Panicf("%+v", err)
 	}
@@ -32,6 +39,7 @@ func main() {
 	}
 
 	errorCollector := make(chan error)
-	runServer(conf, service, errorCollector)
+	go checkForSignals(errorCollector)
+	go runServer(conf, service, errorCollector)
 	log.Errorln("exit: ", <-errorCollector)
 }

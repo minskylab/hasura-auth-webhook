@@ -7,7 +7,6 @@ type PostLoginReq struct {
 }
 
 type PostLoginRes struct {
-	UserID       string `json:"userId"`
-	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
+	UserID      string `json:"userId"`
+	AccessToken string `json:"accessToken"`
 }

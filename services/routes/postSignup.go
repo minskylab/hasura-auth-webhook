@@ -1,28 +1,39 @@
 package routes
 
 import (
-	"context"
+	"encoding/json"
+	"net/http"
 
+	"github.com/minskylab/hasura-auth-webhook/server"
 	"github.com/minskylab/hasura-auth-webhook/services/structures"
 )
 
-func (s service) PostSignup(ctx context.Context, body structures.PostSignupReq) (*structures.PostSignupRes, error) {
-	// validar input
-	// email := body.Email
-	// password := body.Password
+func (s service) PostSignup(w http.ResponseWriter, r *http.Request) {
+	// input validation body
+	var req structures.PostSignupReq
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		server.ResponseError(w, 400, "Wrong body")
+		return
+	}
 
-	// crear en db
-	// user, err := s.engine.Client.User.Create().SetEmail(email).SetPassword(password).Save(ctx)
-	// if err != nil {
-	// 	return nil, errors.New("not access to this resource")
-	// }
+	// create user on DB
+	user, err := s.engine.Client.User.Create().
+		SetEmail(req.Email).SetHashedPassword(req.Password).
+		Save(r.Context())
 
-	// generar token
+	if err != nil {
+		server.ResponseError(w, 500, "User could not be created")
+	}
 
-	// devolver
-	return &structures.PostSignupRes{
-		AccessToken:  "",
-		UserID:       "",
-		RefreshToken: "",
-	}, nil
+	// generate token for user
+	// u := auth.User(r)
+	// token, _ := jwt.IssueAccessToken(u, keeper)
+
+	// parse response
+	res := structures.PostSignupRes{
+		UserID: user.ID.String(),
+	}
+
+	server.ResponseJSON(w, 201, res)
 }
