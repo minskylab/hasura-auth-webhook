@@ -1,0 +1,18 @@
+version: "3"
+
+dotenv: [".env"]
+
+tasks:
+  temp-build:
+    cmds:
+      # - go fmt cmd
+      - go build -v -o /tmp/hasura-auth-webhook cmd/hasura-auth-webhook/*
+
+  generate:
+    cmds:
+      - go run github.com/99designs/gqlgen generate
+
+  start:
+    cmds:
+      - task: temp-build
+      - /tmp/hasura-auth-webhook
