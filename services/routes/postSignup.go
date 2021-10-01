@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/minskylab/hasura-auth-webhook/helpers"
 	"github.com/minskylab/hasura-auth-webhook/server"
 	"github.com/minskylab/hasura-auth-webhook/services/structures"
 )
@@ -18,17 +19,18 @@ func (s service) PostSignup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create user on DB
+	hashed, err := helpers.HashPassword(req.Password)
+	if err != nil {
+		server.ResponseError(w, 500, "User could not be created")
+	}
+
 	user, err := s.engine.Client.User.Create().
-		SetEmail(req.Email).SetHashedPassword(req.Password).
+		SetEmail(req.Email).SetHashedPassword(hashed).
 		Save(r.Context())
 
 	if err != nil {
 		server.ResponseError(w, 500, "User could not be created")
 	}
-
-	// generate token for user
-	// u := auth.User(r)
-	// token, _ := jwt.IssueAccessToken(u, keeper)
 
 	// parse response
 	res := structures.PostSignupRes{
