@@ -1,12 +1,15 @@
 package auth
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+)
 
-// ErrNotAuthorized ...
-var ErrNotAuthorized = errors.New("not access to this resource")
+var ErrInvalidClaims = errors.New("invalid claims")
 
-// ErrNotOwner ...
-var ErrNotOwner = errors.New("this resources is not in your ownership")
+var ErrInvalidToken = errors.New("invalid token payload")
 
-// ErrTokenExpired ...
-var ErrTokenExpired = errors.New("token is expired")
+var ErrInvalidSignMethod = errors.New("unexpected signing method")
+
+func ErrTokenExpired(e error) error {
+	return errors.WithMessage(e, "token is expired")
+}

@@ -1,16 +1,8 @@
 package auth
 
-const hasuraPrefix = "x-hasura-"
-const organizationPrefix = hasuraPrefix + "org-"
-const userPrefix = hasuraPrefix + "user-"
+import "time"
 
-const defaultRoleHeaderName = hasuraPrefix + "role"
+const issuer = "hasura-app"
 
-const orgIDHeaderName = organizationPrefix + "id"
-
-// const orgNameHeaderName = organizationPrefix + "name"
-const orgUsernameHeaderName = organizationPrefix + "username"
-
-const userIDHeaderName = userPrefix + "id"
-
-const roleIDHeaderName = hasuraPrefix + "role-id"
+var defaultAccessTokenDuration = 15 * time.Minute
+var defaultRefreshTokenDuration = 7 * 24 * time.Hour
