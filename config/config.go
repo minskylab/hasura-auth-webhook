@@ -5,84 +5,39 @@ import (
 )
 
 type Config struct {
-	HOST                   string
-	PORT                   string
-	DB_HOST                string
-	DB_PORT                string
-	DB_USER                string
-	DB_PASS                string
-	DB_DATABASE            string
-	JWT_ACCESS_KEY_SECRET  string
-	JWT_REFRESH_KEY_SECRET string
+	Host                string
+	Port                string
+	DBHost              string
+	DBPort              string
+	DBUser              string
+	DBPass              string
+	DBDatabase          string
+	JwtAccessKeySecret  string
+	JwtRefreshKeySecret string
 }
 
-// func getEnv(key string, fallback string) string {
-// 	value := os.Getenv(key)
-// 	if len(value) == 0 {
-// 		return fallback
-// 	}
-// 	return value
-// }
+func getEnv(key string, fallback string) string {
+	value, ok := os.LookupEnv(key)
+	if !ok {
+		return fallback
+	}
+	return value
+}
 
 func NewConfig() *Config {
-	keys := map[string]string{
-		"HOST":                   "0.0.0.0",
-		"PORT":                   "8000",
-		"DB_HOST":                "",
-		"DB_PORT":                "",
-		"DB_USER":                "",
-		"DB_PASS":                "",
-		"DB_DATABASE":            "",
-		"JWT_ACCESS_KEY_SECRET":  "",
-		"JWT_REFRESH_KEY_SECRET": "",
-	}
+	var c Config
 
-	// keys["HOST"] = getEnv("HOST", "")
-	if value, ok := os.LookupEnv("HOST"); ok {
-		keys["HOST"] = value
-	}
+	c.Host = getEnv("HOST", "0.0.0.0")
+	c.Port = getEnv("PORT", "8000")
 
-	if value, ok := os.LookupEnv("PORT"); ok {
-		keys["PORT"] = value
-	}
+	c.DBHost = getEnv("DB_HOST", "")
+	c.DBPort = getEnv("DB_PORT", "")
+	c.DBUser = getEnv("DB_USER", "")
+	c.DBPass = getEnv("DB_PASS", "")
+	c.DBDatabase = getEnv("DB_DATABASE", "")
 
-	if value, ok := os.LookupEnv("DB_HOST"); ok {
-		keys["DB_HOST"] = value
-	}
+	c.JwtAccessKeySecret = getEnv("JWT_ACCESS_KEY_SECRET", "a-change-me")
+	c.JwtRefreshKeySecret = getEnv("JWT_REFRESH_KEY_SECRET", "r-change-me")
 
-	if value, ok := os.LookupEnv("DB_PORT"); ok {
-		keys["DB_PORT"] = value
-	}
-
-	if value, ok := os.LookupEnv("DB_USER"); ok {
-		keys["DB_USER"] = value
-	}
-
-	if value, ok := os.LookupEnv("DB_PASS"); ok {
-		keys["DB_PASS"] = value
-	}
-
-	if value, ok := os.LookupEnv("DB_DATABASE"); ok {
-		keys["DB_DATABASE"] = value
-	}
-
-	if value, ok := os.LookupEnv("JWT_ACCESS_KEY_SECRET"); ok {
-		keys["JWT_ACCESS_KEY_SECRET"] = value
-	}
-
-	if value, ok := os.LookupEnv("JWT_REFRESH_KEY_SECRET"); ok {
-		keys["JWT_REFRESH_KEY_SECRET"] = value
-	}
-
-	return &Config{
-		HOST:                   keys["HOST"],
-		PORT:                   keys["PORT"],
-		DB_HOST:                keys["DB_HOST"],
-		DB_PORT:                keys["DB_PORT"],
-		DB_USER:                keys["DB_USER"],
-		DB_PASS:                keys["DB_PASS"],
-		DB_DATABASE:            keys["DB_DATABASE"],
-		JWT_ACCESS_KEY_SECRET:  keys["JWT_ACCESS_KEY_SECRET"],
-		JWT_REFRESH_KEY_SECRET: keys["JWT_REFRESH_KEY_SECRET"],
-	}
+	return &c
 }

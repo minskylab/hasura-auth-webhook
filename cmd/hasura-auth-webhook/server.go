@@ -12,7 +12,7 @@ import (
 )
 
 func runServer(conf *config.Config, service server.Service, errCollector chan error) {
-	serverURI := conf.HOST + ":" + conf.PORT
+	serverURI := conf.Host + ":" + conf.Port
 
 	router := mux.NewRouter()
 	server.SetupRoutes(router, service)

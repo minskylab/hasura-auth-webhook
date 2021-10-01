@@ -9,11 +9,11 @@ import (
 )
 
 func connectionString(c *config.Config) (string, error) {
-	host := c.DB_HOST
-	port := c.DB_PORT
-	user := c.DB_USER
-	dbName := c.DB_DATABASE
-	password := c.DB_PASS
+	host := c.DBHost
+	port := c.DBPort
+	user := c.DBUser
+	dbName := c.DBDatabase
+	password := c.DBPass
 
 	if host == "" || port == "" || user == "" || dbName == "" || password == "" {
 		return "", ErrConfigDB

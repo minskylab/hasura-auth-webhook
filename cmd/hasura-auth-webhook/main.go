@@ -5,9 +5,9 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	haw "github.com/minskylab/hasura-auth-webhook"
+	"github.com/minskylab/hasura-auth-webhook/auth"
 	"github.com/minskylab/hasura-auth-webhook/config"
 	"github.com/minskylab/hasura-auth-webhook/db"
-	"github.com/minskylab/hasura-auth-webhook/guardian"
 	"github.com/minskylab/hasura-auth-webhook/server"
 	"github.com/minskylab/hasura-auth-webhook/services/routes"
 )
@@ -23,7 +23,8 @@ func main() {
 	}
 	defer client.Close()
 
-	authStrategy, err := guardian.SetupAuth()
+	secretSource := auth.RawSecret([]byte(conf.JwtAccessKeySecret), []byte(conf.JwtRefreshKeySecret))
+	authStrategy, err := auth.New(secretSource)
 	if err != nil {
 		log.Panicf("%+v", err)
 	}
