@@ -6,7 +6,7 @@ import (
 	"github.com/minskylab/hasura-auth-webhook/ent"
 )
 
-// TokenPayload contains the basic three ids of any fairpay token
+// TokenPayload contains the user id of the token
 type TokenPayload struct {
 	UserID string
 }
