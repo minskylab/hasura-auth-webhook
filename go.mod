@@ -4,6 +4,8 @@ go 1.15
 
 require (
 	entgo.io/ent v0.9.1
+	github.com/gofiber/fiber v1.14.6
+	github.com/gofiber/fiber/v2 v2.19.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gorilla/mux v1.8.0
 	github.com/kr/text v0.2.0 // indirect

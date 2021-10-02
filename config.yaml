@@ -1,0 +1,16 @@
+---
+api:
+  public:
+    hostname: 0.0.0.0
+    port: 8080
+  internal:
+    hostname: 0.0.0.0
+    port: 1111
+
+roles:
+  admin: admin
+  default: user
+
+sudo:
+  email: admin@example.com
+  password: no-secure-password
