@@ -1,0 +1,74 @@
+version: "3.7"
+
+services:
+  postgres:
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+    image: postgres:14.0
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  pgweb:
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://postgres:mysecretpassword@postgres:5432/postgres?sslmode=disable
+    image: sosedoff/pgweb
+    ports:
+      - 8081:8081
+    restart: unless-stopped
+
+  hasura:
+    depends_on:
+      - postgres
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:mysecretpassword@postgres:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+      HASURA_GRAPHQL_AUTH_HOOK: auth:8000
+      HASURA_GRAPHQL_AUTH_HOOK_MODE: POST
+    image: hasura/graphql-engine:v2.0.0-beta.1
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  auth-db:
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+    image: postgres:14.0
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  auth:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        GITHUB_TOKEN: ${GITHUB_PAT}
+    depends_on:
+      - postgres
+      - hasura
+    environment:
+      PORT: 8000
+      DB_HOST: auth-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASS: mysecretpassword
+      DB_DATABASE: postgres
+    image: minskylab/hasura-auth-webhook:v0.0.1
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  db_data:
