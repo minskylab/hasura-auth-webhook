@@ -24,12 +24,12 @@ func main() {
 	defer client.Close()
 
 	secretSource := auth.RawSecret([]byte(conf.JwtAccessKeySecret), []byte(conf.JwtRefreshKeySecret))
-	authStrategy, err := auth.New(secretSource)
+	authManager, err := auth.New(secretSource)
 	if err != nil {
 		log.Panicf("%+v", err)
 	}
 
-	engine, err := haw.CreateNewEngine(client, authStrategy, false)
+	engine, err := haw.CreateNewEngine(client, authManager, true)
 	if err != nil {
 		log.Panicf("%+v", err)
 	}
