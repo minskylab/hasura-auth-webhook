@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/minskylab/hasura-auth-webhook/ent/user"
 	"github.com/minskylab/hasura-auth-webhook/server"
@@ -12,13 +12,13 @@ import (
 
 func (s service) PostWebhook(w http.ResponseWriter, r *http.Request) {
 	// input validation body
-	var req structures.PostWebhookReq
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
+	authorizationHeader := r.Header.Get("Authorization")
+	arr := strings.Split(authorizationHeader, "Bearer")
+	if len(arr) != 2 {
 		server.ResponseError(w, 401, "Header not found")
 		return
 	}
-	receivedAccessToken := req.Headers.Bearer
+	receivedAccessToken := arr[1]
 
 	// validate token and get raw data
 	payload, err := s.engine.Auth.ValidateAccessToken(receivedAccessToken)

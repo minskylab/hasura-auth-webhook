@@ -19,6 +19,16 @@ func (s service) PostLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if ok := helpers.ValidateEmail(req.Email); !ok {
+		server.ResponseError(w, 400, "Wrong body")
+		return
+	}
+
+	if ok := helpers.ValidatePassword(req.Password); !ok {
+		server.ResponseError(w, 400, "Wrong body")
+		return
+	}
+
 	// lookup user by email
 	u, err := s.engine.Client.User.Query().Where(user.Email(req.Email)).Only(r.Context())
 	if err != nil {

@@ -18,6 +18,16 @@ func (s service) PostSignup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if ok := helpers.ValidateEmail(req.Email); !ok {
+		server.ResponseError(w, 400, "Wrong body")
+		return
+	}
+
+	if ok := helpers.ValidatePassword(req.Password); !ok {
+		server.ResponseError(w, 400, "Wrong body")
+		return
+	}
+
 	// create user on DB
 	hashed, err := helpers.HashPassword(req.Password)
 	if err != nil {
