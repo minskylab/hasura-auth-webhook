@@ -12,5 +12,4 @@ func SetupRoutes(router *mux.Router, s Service) {
 	router.HandleFunc("/signup", s.PostSignup).Methods("POST")
 
 	router.HandleFunc("/webhook", s.PostWebhook).Methods("POST")
-
 }

@@ -37,8 +37,7 @@ func (s service) PostLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// compare password
-	ok := helpers.CheckPasswordHash(req.Password, u.HashedPassword)
-	if !ok {
+	if ok := helpers.CheckPasswordHash(req.Password, u.HashedPassword); !ok {
 		server.ResponseError(w, 400, "Wrong credentials")
 		return
 	}

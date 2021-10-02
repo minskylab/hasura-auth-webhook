@@ -10,15 +10,18 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+const bearerTokenWord = "Bearer"
+
 func (s service) PostWebhook(w http.ResponseWriter, r *http.Request) {
 	// input validation body
 	authorizationHeader := r.Header.Get("Authorization")
-	arr := strings.Split(authorizationHeader, "Bearer")
-	if len(arr) != 2 {
+
+	if !strings.HasPrefix(authorizationHeader, bearerTokenWord) {
 		server.ResponseError(w, 401, "Header not found")
 		return
 	}
-	receivedAccessToken := arr[1]
+
+	receivedAccessToken := strings.TrimSpace(strings.ReplaceAll(authorizationHeader, bearerTokenWord, ""))
 
 	// validate token and get raw data
 	payload, err := s.engine.Auth.ValidateAccessToken(receivedAccessToken)

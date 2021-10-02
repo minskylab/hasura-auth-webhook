@@ -16,3 +16,4 @@
 
 # Sensitive files
 .env
+.vscode

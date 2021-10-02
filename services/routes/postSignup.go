@@ -12,6 +12,7 @@ import (
 func (s service) PostSignup(w http.ResponseWriter, r *http.Request) {
 	// input validation body
 	var req structures.PostSignupReq
+
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		server.ResponseError(w, 400, "Wrong body")
@@ -37,7 +38,6 @@ func (s service) PostSignup(w http.ResponseWriter, r *http.Request) {
 	user, err := s.engine.Client.User.Create().
 		SetEmail(req.Email).SetHashedPassword(hashed).
 		Save(r.Context())
-
 	if err != nil {
 		server.ResponseError(w, 500, "User could not be created")
 	}

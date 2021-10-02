@@ -32,7 +32,6 @@ func (auth *AuthManager) DispatchRefreshToken(forUser *ent.User, duration ...tim
 		return newToken(forUser.ID.String(), auth.refreshSecret, auth.refreshTokenDuration)
 	}
 	return newToken(forUser.ID.String(), auth.refreshSecret, duration[0])
-
 }
 
 // ValidateToken validates an existent jwt token.

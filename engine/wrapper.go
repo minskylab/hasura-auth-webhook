@@ -1,4 +1,4 @@
-package hasuraauthwebhook
+package engine
 
 import (
 	"context"
@@ -7,12 +7,6 @@ import (
 	"github.com/minskylab/hasura-auth-webhook/auth"
 	"github.com/minskylab/hasura-auth-webhook/ent"
 )
-
-// Engine wraps all related to the platform (it's the core engine).
-type Engine struct {
-	*ent.Client
-	Auth *auth.AuthManager
-}
 
 // CreateNewEngine creates a new Engine instance.
 func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, createSchema bool) (*Engine, error) {
