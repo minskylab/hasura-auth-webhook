@@ -7,6 +7,6 @@ import (
 type Service interface {
 	HostnameAndPort() (string, string)
 
-	SignUp(ctx *fiber.Ctx, req *SignUpRequest) (*SignUpResponse, error)
-	Login(ctx *fiber.Ctx, req *LoginRequest) (*LoginResponse, error)
+	SignUp(ctx *fiber.Ctx) error
+	Login(ctx *fiber.Ctx) error
 }
