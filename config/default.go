@@ -4,10 +4,10 @@ func NewDefaultConfig(roles ...Role) *Config {
 	config := &Config{}
 
 	config.API.Internal.Hostname = "0.0.0.0"
-	config.API.Internal.Port = 8080
+	config.API.Internal.Port = 1111
 
 	config.API.Public.Hostname = "0.0.0.0"
-	config.API.Public.Port = 1111
+	config.API.Public.Port = 8080
 
 	config.Roles = append(config.Roles, Role{
 		Name: "admin",
