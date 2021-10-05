@@ -3,13 +3,12 @@ package server
 import (
 	"strings"
 
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	"github.com/minskylab/hasura-auth-webhook/auth"
 	"github.com/minskylab/hasura-auth-webhook/config"
 	"github.com/minskylab/hasura-auth-webhook/ent"
 	"github.com/minskylab/hasura-auth-webhook/ent/user"
-	"github.com/minskylab/hasura-auth-webhook/services/internal"
-	"github.com/minskylab/hasura-auth-webhook/services/structures"
+	"github.com/minskylab/hasura-auth-webhook/services"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 )
@@ -23,8 +22,8 @@ type InternalServer struct {
 	client *ent.Client
 	auth   *auth.AuthManager
 
-	Hostname string
-	Port     int
+	hostname string
+	port     int
 }
 
 func NewInternalServer(client *ent.Client, auth *auth.AuthManager, conf *config.Config) *InternalServer {
@@ -32,24 +31,21 @@ func NewInternalServer(client *ent.Client, auth *auth.AuthManager, conf *config.
 		client: client,
 		auth:   auth,
 
-		Hostname: conf.API.Internal.Hostname,
-		Port:     conf.API.Internal.Port,
+		hostname: conf.API.Internal.Hostname,
+		port:     conf.API.Internal.Port,
 	}
 }
 
-func (s *InternalServer) HostnameAndPort() (string, int) {
-	return s.Hostname, s.Port
+func (s *InternalServer) Hostname() string {
+	return s.hostname
 }
 
-func (s *InternalServer) HasuraWebhook(ctx fiber.Ctx) error {
-	// input validation body
-	var req *internal.HasuraWebhookRequest
-	if err := ctx.BodyParser(req); err != nil {
-		return errorResponse(ctx.Status(400), errors.Wrap(err, "error on parse body"))
-	}
+func (s *InternalServer) Port() int {
+	return s.port
+}
 
+func (s *InternalServer) HasuraWebhook(ctx *fiber.Ctx) error {
 	authorizationHeader := ctx.Get(authorizationHeaderName)
-	// authorizationHeader := r.Header.Get("Authorization")
 
 	if !strings.HasPrefix(authorizationHeader, bearerTokenWord) {
 		return errorResponse(ctx.Status(401), errors.New("header not found"))
@@ -80,7 +76,7 @@ func (s *InternalServer) HasuraWebhook(ctx fiber.Ctx) error {
 	}
 
 	// parse json response
-	res := structures.PostWebhookRes{
+	res := services.HasuraWebhookResponse{
 		HasuraUserId: "",
 		HasuraRole:   roles[0].Name,
 	}

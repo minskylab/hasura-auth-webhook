@@ -1,4 +1,16 @@
-package public
+package services
+
+import (
+	"github.com/gofiber/fiber/v2"
+)
+
+type PublicService interface {
+	Hostname() string
+	Port() int
+
+	Register(ctx *fiber.Ctx) error
+	Login(ctx *fiber.Ctx) error
+}
 
 type SignUpRequest struct {
 	Email    string `json:"email"`

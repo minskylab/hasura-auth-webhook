@@ -17,3 +17,5 @@
 # Sensitive files
 .env
 .vscode
+.dccache
+*.db

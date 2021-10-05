@@ -10,7 +10,7 @@ tasks:
 
   generate:
     cmds:
-      - go run github.com/99designs/gqlgen generate
+      - go run entgo.io/ent/cmd/ent generate ./ent/schema
 
   start:
     cmds:

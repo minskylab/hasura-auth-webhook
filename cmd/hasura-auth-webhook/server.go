@@ -1,23 +1,12 @@
 package main
 
-import (
-	"net/http"
+// func runServer(conf *config.Config, service server.Service, errCollector chan error) {
+// 	serverURI := fmt.Sprintf("%s:%d", conf.API.Internal.Hostname, conf.API.Internal.Port)
 
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
+// 	router := mux.NewRouter()
+// 	server.SetupRoutes(router, service)
+// 	handler := cors.AllowAll().Handler(router)
 
-	"github.com/minskylab/hasura-auth-webhook/config"
-	"github.com/minskylab/hasura-auth-webhook/helpers"
-	"github.com/minskylab/hasura-auth-webhook/server"
-)
-
-func runServer(conf *config.Config, service server.Service, errCollector chan error) {
-	serverURI := conf.Host + ":" + conf.Port
-
-	router := mux.NewRouter()
-	server.SetupRoutes(router, service)
-	handler := cors.AllowAll().Handler(router)
-
-	helpers.PrintLogo(serverURI)
-	errCollector <- http.ListenAndServe(serverURI, handler)
-}
+// 	helpers.PrintLogo(serverURI)
+// 	errCollector <- http.ListenAndServe(serverURI, handler)
+// }

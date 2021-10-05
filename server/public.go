@@ -1,13 +1,13 @@
 package server
 
 import (
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	"github.com/minskylab/hasura-auth-webhook/auth"
 	"github.com/minskylab/hasura-auth-webhook/config"
 	"github.com/minskylab/hasura-auth-webhook/ent"
 	"github.com/minskylab/hasura-auth-webhook/ent/user"
 	"github.com/minskylab/hasura-auth-webhook/helpers"
-	"github.com/minskylab/hasura-auth-webhook/services/public"
+	"github.com/minskylab/hasura-auth-webhook/services"
 	"github.com/pkg/errors"
 )
 
@@ -15,8 +15,8 @@ type PublicServer struct {
 	client *ent.Client
 	auth   *auth.AuthManager
 
-	Hostname string
-	Port     int
+	hostname string
+	port     int
 }
 
 func NewPublicServer(client *ent.Client, auth *auth.AuthManager, conf *config.Config) *PublicServer {
@@ -24,17 +24,21 @@ func NewPublicServer(client *ent.Client, auth *auth.AuthManager, conf *config.Co
 		client: client,
 		auth:   auth,
 
-		Hostname: conf.API.Public.Hostname,
-		Port:     conf.API.Public.Port,
+		hostname: conf.API.Public.Hostname,
+		port:     conf.API.Public.Port,
 	}
 }
 
-func (p *PublicServer) HostnameAndPort() (string, int) {
-	return p.Hostname, p.Port
+func (p *PublicServer) Hostname() string {
+	return p.hostname
 }
 
-func (p *PublicServer) SignUp(ctx *fiber.Ctx) error {
-	var req *public.SignUpRequest
+func (p *PublicServer) Port() int {
+	return p.port
+}
+
+func (p *PublicServer) Register(ctx *fiber.Ctx) error {
+	var req *services.SignUpRequest
 	if err := ctx.BodyParser(req); err != nil {
 		return errorResponse(ctx.Status(400), errors.Wrap(err, "error on parse body"))
 	}
@@ -59,7 +63,7 @@ func (p *PublicServer) SignUp(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(500), errors.New("user could not be created"))
 	}
 
-	res := public.SignUpResponse{
+	res := services.SignUpResponse{
 		UserID: u.ID.String(),
 	}
 
@@ -67,7 +71,7 @@ func (p *PublicServer) SignUp(ctx *fiber.Ctx) error {
 }
 
 func (p *PublicServer) Login(ctx *fiber.Ctx) error {
-	var req *public.LoginRequest
+	var req *services.LoginRequest
 	if err := ctx.BodyParser(req); err != nil {
 		return errorResponse(ctx.Status(400), errors.Wrap(err, "error on parse body"))
 	}
@@ -109,7 +113,7 @@ func (p *PublicServer) Login(ctx *fiber.Ctx) error {
 	})
 
 	// parse json response
-	res := public.LoginResponse{
+	res := services.LoginResponse{
 		UserID:      u.ID.String(),
 		AccessToken: accessToken,
 	}
