@@ -20,7 +20,7 @@ func (e *Engine) PublicFiberApp() *fiber.App {
 func (e *Engine) InternalFiberApp() *fiber.App {
 	app := fiber.New()
 
-	app.Post("/validate", e.InternalService.HasuraWebhook)
+	app.Get("/validate", e.InternalService.HasuraWebhook)
 
 	return app
 }
