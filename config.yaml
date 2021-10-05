@@ -23,3 +23,6 @@ anonymous:
 
 roles:
   - name: default
+    users:
+      - email: user@example.com
+        password: no-secure-password
