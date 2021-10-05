@@ -57,7 +57,8 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 	}
 
 	u, err := p.client.User.Create().
-		SetEmail(req.Email).SetHashedPassword(hashed).
+		SetEmail(req.Email).
+		SetHashedPassword(hashed).
 		Save(ctx.Context())
 	if err != nil {
 		return errorResponse(ctx.Status(500), errors.New("user could not be created"))
@@ -71,9 +72,9 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 }
 
 func (p *PublicServer) Login(ctx *fiber.Ctx) error {
-	var req *services.LoginRequest
-	if err := ctx.BodyParser(req); err != nil {
-		return errorResponse(ctx.Status(400), errors.Wrap(err, "error on parse body"))
+	var req services.LoginRequest
+	if err := ctx.BodyParser(&req); err != nil {
+		return errorResponse(ctx.Status(400), errors.Wrap(err, "error on body parser"))
 	}
 
 	if ok := helpers.ValidateEmail(req.Email); !ok {
@@ -87,7 +88,7 @@ func (p *PublicServer) Login(ctx *fiber.Ctx) error {
 	// lookup user by email
 	u, err := p.client.User.Query().Where(user.Email(req.Email)).Only(ctx.Context())
 	if err != nil {
-		return errorResponse(ctx.Status(400), errors.New("wrong credentials"))
+		return errorResponse(ctx.Status(400), errors.WithMessage(err, "wrong credentials"))
 	}
 
 	// compare password

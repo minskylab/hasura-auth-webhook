@@ -10,7 +10,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/minskylab/hasura-auth-webhook/ent/role"
 
-	"github.com/minskylab/hasura-auth-webhook/ent/user"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -27,31 +26,25 @@ type Role struct {
 	Name string `json:"name,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RoleQuery when eager-loading is set.
-	Edges      RoleEdges `json:"edges"`
-	user_roles *uuid.UUID
+	Edges RoleEdges `json:"edges"`
 }
 
 // RoleEdges holds the relations/edges for other nodes in the graph.
 type RoleEdges struct {
-	// User holds the value of the user edge.
-	User *User `json:"user,omitempty"`
+	// Users holds the value of the users edge.
+	Users []*User `json:"users,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// UserOrErr returns the User value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e RoleEdges) UserOrErr() (*User, error) {
+// UsersOrErr returns the Users value or an error if the edge
+// was not loaded in eager-loading.
+func (e RoleEdges) UsersOrErr() ([]*User, error) {
 	if e.loadedTypes[0] {
-		if e.User == nil {
-			// The edge user was loaded in eager-loading,
-			// but was not found.
-			return nil, &NotFoundError{label: user.Label}
-		}
-		return e.User, nil
+		return e.Users, nil
 	}
-	return nil, &NotLoadedError{edge: "user"}
+	return nil, &NotLoadedError{edge: "users"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -65,8 +58,6 @@ func (*Role) scanValues(columns []string) ([]interface{}, error) {
 			values[i] = new(sql.NullTime)
 		case role.FieldID:
 			values[i] = new(uuid.UUID)
-		case role.ForeignKeys[0]: // user_roles
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Role", columns[i])
 		}
@@ -106,21 +97,14 @@ func (r *Role) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				r.Name = value.String
 			}
-		case role.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field user_roles", values[i])
-			} else if value.Valid {
-				r.user_roles = new(uuid.UUID)
-				*r.user_roles = *value.S.(*uuid.UUID)
-			}
 		}
 	}
 	return nil
 }
 
-// QueryUser queries the "user" edge of the Role entity.
-func (r *Role) QueryUser() *UserQuery {
-	return (&RoleClient{config: r.config}).QueryUser(r)
+// QueryUsers queries the "users" edge of the Role entity.
+func (r *Role) QueryUsers() *UserQuery {
+	return (&RoleClient{config: r.config}).QueryUsers(r)
 }
 
 // Update returns a builder for updating this Role.

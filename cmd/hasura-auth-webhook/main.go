@@ -31,8 +31,6 @@ func main() {
 		log.Panicf("%+v", err)
 	}
 
-	// log.Info(authManager)
-
 	engine, err := engine.CreateNewEngine(client, authManager, conf, true)
 	if err != nil {
 		log.Panicf("%+v", err)
@@ -40,17 +38,7 @@ func main() {
 
 	signalErr := engine.Launch()
 
-	<-signalErr
-
-	// var service server.Service
-	// {
-	// 	service = routes.NewService(engine)
-	// }
-
-	// errorCollector := make(chan error)
-
-	// go checkForSignals(errorCollector)
-	// go runServer(conf, service, errorCollector)
-
-	// log.Errorln("exit: ", <-errorCollector)
+	if err := <-signalErr; err != nil {
+		log.Panicf("%+v", err)
+	}
 }
