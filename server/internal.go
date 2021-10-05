@@ -81,5 +81,5 @@ func (s *InternalServer) HasuraWebhook(ctx *fiber.Ctx) error {
 		HasuraRole:   roles[0].Name,
 	}
 
-	return ctx.Status(201).JSON(res)
+	return ctx.Status(200).JSON(res)
 }
