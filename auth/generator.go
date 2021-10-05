@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/pkg/errors"
 )
 
 func newToken(userID string, secret []byte, duration time.Duration) (string, error) {
@@ -24,6 +25,9 @@ func validateToken(token string, secret []byte) (*TokenPayload, error) {
 		}
 		return secret, nil
 	})
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
 
 	mapClaims, ok := finalToken.Claims.(jwt.MapClaims)
 	if !ok {
