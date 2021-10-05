@@ -53,22 +53,13 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      args:
-        GITHUB_TOKEN: ${GITHUB_PAT}
     depends_on:
       - postgres
       - hasura
-    environment:
-      PORT: 8000
-      DB_HOST: auth-db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASS: mysecretpassword
-      DB_DATABASE: postgres
+
     image: minskylab/hasura-auth-webhook:v0.0.1
     ports:
       - "8080:8080"
-      - "1111:1111"
     restart: unless-stopped
 
 volumes:
