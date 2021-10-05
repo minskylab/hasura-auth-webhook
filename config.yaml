@@ -19,3 +19,6 @@ roles:
       - email: admin@example.com
         password: no-secure-password
   - name: default
+  - name: public
+    isAnonymous: true
+    

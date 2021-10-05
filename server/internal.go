@@ -47,8 +47,19 @@ func (s *InternalServer) Port() int {
 func (s *InternalServer) HasuraWebhook(ctx *fiber.Ctx) error {
 	authorizationHeader := ctx.Get(authorizationHeaderName)
 
-	if !strings.HasPrefix(authorizationHeader, bearerTokenWord) {
+	anonymous := s.auth.GetAnonymous()
+	withAnonymousAllowed := anonymous != nil
+	withBearerToken := strings.HasPrefix(authorizationHeader, bearerTokenWord)
+
+	if !withBearerToken && !withAnonymousAllowed {
 		return errorResponse(ctx.Status(401), errors.New("header not found"))
+	}
+
+	if !withBearerToken && withAnonymousAllowed {
+		return ctx.Status(200).JSON(services.HasuraWebhookResponse{
+			HasuraUserId: "",
+			HasuraRole:   anonymous.Name,
+		})
 	}
 
 	receivedAccessToken := strings.TrimSpace(strings.ReplaceAll(authorizationHeader, bearerTokenWord, ""))

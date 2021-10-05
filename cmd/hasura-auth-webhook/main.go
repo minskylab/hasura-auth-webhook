@@ -25,7 +25,17 @@ func main() {
 		[]byte(conf.JWT.RefreshSecret),
 	)
 
-	authManager, err := auth.New(secretSource)
+	// authManager, err := auth.New(secretSource, c.isAnonymousAllowed)
+	var anonymous *auth.AnonymousRole
+	for _, r := range conf.Roles {
+		if r.IsAnonymous {
+			anonymous = &auth.AnonymousRole{
+				Name: r.Name,
+			}
+			break
+		}
+	}
+	authManager, err := auth.New(secretSource, anonymous)
 	if err != nil {
 		logrus.Panicf("%+v", err)
 	}

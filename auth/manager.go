@@ -17,6 +17,11 @@ type AuthManager struct {
 	refreshTokenDuration time.Duration
 	accessSecret         []byte
 	refreshSecret        []byte
+	anonymous            *AnonymousRole
+}
+
+type AnonymousRole struct {
+	Name string
 }
 
 // DispatchToken use to dispatch a simple jwt token.
@@ -42,4 +47,12 @@ func (auth *AuthManager) ValidateAccessToken(token string) (*TokenPayload, error
 // ValidateToken validates an existent jwt token.
 func (auth *AuthManager) ValidateRefreshToken(token string) (*TokenPayload, error) {
 	return validateToken(token, auth.refreshSecret)
+}
+
+func (auth *AuthManager) IsAnonymousAllowed() bool {
+	return auth.anonymous != nil
+}
+
+func (auth *AuthManager) GetAnonymous() *AnonymousRole {
+	return auth.anonymous
 }

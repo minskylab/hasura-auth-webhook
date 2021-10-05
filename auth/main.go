@@ -10,7 +10,7 @@ func RawSecret(as []byte, rs []byte) SecretSource {
 }
 
 // New creates a new AuthManager instance.
-func New(source SecretSource) (*AuthManager, error) {
+func New(source SecretSource, anonymous *AnonymousRole) (*AuthManager, error) {
 	as, err := source.GetAccessSecret()
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -26,5 +26,6 @@ func New(source SecretSource) (*AuthManager, error) {
 		refreshTokenDuration: defaultRefreshTokenDuration,
 		accessSecret:         as,
 		refreshSecret:        rs,
+		anonymous:            anonymous,
 	}, nil
 }

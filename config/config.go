@@ -37,6 +37,7 @@ type User struct {
 }
 
 type Role struct {
-	Name  string `yaml:"name"`
-	Users []User `yaml:"users,omitempty"`
+	Name        string `yaml:"name"`
+	Users       []User `yaml:"users,omitempty"`
+	IsAnonymous bool   `yaml:"isAnonymous,omitempty"`
 }
