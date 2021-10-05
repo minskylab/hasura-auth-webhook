@@ -13,12 +13,13 @@ api:
     hostname: 0.0.0.0
     port: 1111
 
+admin:
+  users:
+    - email: admin@example.com
+      password: no-secure-password
+
+anonymous:
+  name: public
+
 roles:
-  - name: admin
-    users:
-      - email: admin@example.com
-        password: no-secure-password
   - name: default
-  - name: public
-    isAnonymous: true
-    
