@@ -4,12 +4,14 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
 func (e *Engine) PublicFiberApp() *fiber.App {
 	app := fiber.New()
+	app.Use(logger.New())
 
 	app.Post("/login", e.PublicService.Login)
 	app.Post("/register", e.PublicService.Register)
@@ -20,6 +22,7 @@ func (e *Engine) PublicFiberApp() *fiber.App {
 
 func (e *Engine) InternalFiberApp() *fiber.App {
 	app := fiber.New()
+	app.Use(logger.New())
 
 	app.Get("/validate", e.InternalService.HasuraWebhook)
 
