@@ -30,11 +30,11 @@ services:
       HASURA_GRAPHQL_DEV_MODE: "true"
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
       HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
-      HASURA_GRAPHQL_AUTH_HOOK: auth:8000
-      HASURA_GRAPHQL_AUTH_HOOK_MODE: POST
+      HASURA_GRAPHQL_AUTH_HOOK: http://auth:1111/validate
+      HASURA_GRAPHQL_AUTH_HOOK_MODE: GET
     image: hasura/graphql-engine:v2.0.0-beta.1
     ports:
-      - "8080:8080"
+      - "8081:8080"
     restart: unless-stopped
 
   auth-db:
@@ -53,21 +53,13 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-      args:
-        GITHUB_TOKEN: ${GITHUB_PAT}
     depends_on:
       - postgres
       - hasura
-    environment:
-      PORT: 8000
-      DB_HOST: auth-db
-      DB_PORT: 5432
-      DB_USER: postgres
-      DB_PASS: mysecretpassword
-      DB_DATABASE: postgres
+
     image: minskylab/hasura-auth-webhook:v0.0.1
     ports:
-      - "8000:8000"
+      - "8080:8080"
     restart: unless-stopped
 
 volumes:

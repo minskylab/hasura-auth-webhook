@@ -1,46 +1,52 @@
 package main
 
 import (
-	_ "github.com/lib/pq"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
-	haw "github.com/minskylab/hasura-auth-webhook"
 	"github.com/minskylab/hasura-auth-webhook/auth"
 	"github.com/minskylab/hasura-auth-webhook/config"
 	"github.com/minskylab/hasura-auth-webhook/db"
-	"github.com/minskylab/hasura-auth-webhook/server"
-	"github.com/minskylab/hasura-auth-webhook/services/routes"
+	"github.com/minskylab/hasura-auth-webhook/engine"
 )
 
 func main() {
-	log.SetLevel(log.DebugLevel)
+	logrus.SetLevel(logrus.DebugLevel)
 
-	conf := config.NewConfig()
+	// conf := config.NewDefaultConfig()
+	conf, _ := config.NewConfig(".")
+	// helpers.Log(conf)
 
 	client, err := db.OpenDBClient(conf)
 	if err != nil {
-		log.Panicf("%+v", err)
+		logrus.Panicf("%+v", err)
 	}
 	defer client.Close()
 
-	secretSource := auth.RawSecret([]byte(conf.JwtAccessKeySecret), []byte(conf.JwtRefreshKeySecret))
-	authManager, err := auth.New(secretSource)
+	secretSource := auth.RawSecret(
+		[]byte(conf.JWT.AccessSecret),
+		[]byte(conf.JWT.RefreshSecret),
+	)
+
+	var anonymous *auth.AnonymousRole
+	if conf.Anonymous != nil {
+		anonymous = &auth.AnonymousRole{
+			Name: conf.Anonymous.Name,
+		}
+	}
+
+	authManager, err := auth.New(secretSource, anonymous)
 	if err != nil {
-		log.Panicf("%+v", err)
+		logrus.Panicf("%+v", err)
 	}
 
-	engine, err := haw.CreateNewEngine(client, authManager, true)
+	engine, err := engine.CreateNewEngine(client, authManager, conf, true)
 	if err != nil {
-		log.Panicf("%+v", err)
+		logrus.Panicf("%+v", err)
 	}
 
-	var service server.Service
-	{
-		service = routes.NewService(engine)
-	}
+	signalErr := engine.Launch()
 
-	errorCollector := make(chan error)
-	go checkForSignals(errorCollector)
-	go runServer(conf, service, errorCollector)
-	log.Errorln("exit: ", <-errorCollector)
+	if err := <-signalErr; err != nil {
+		logrus.Panicf("%+v", err)
+	}
 }

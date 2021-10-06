@@ -1,43 +1,52 @@
 package config
 
-import (
-	"os"
-)
-
 type Config struct {
-	Host                string
-	Port                string
-	DBHost              string
-	DBPort              string
-	DBUser              string
-	DBPass              string
-	DBDatabase          string
-	JwtAccessKeySecret  string
-	JwtRefreshKeySecret string
+	API       API        `yaml:"api"`
+	DB        DB         `yaml:"db"`
+	JWT       JWT        `yaml:"jwt"`
+	Admin     Admin      `yaml:"admin"`
+	Anonymous *Anonymous `yaml:"admin"`
+	Roles     []Role     `yaml:"roles,mapstructure"`
 }
 
-func getEnv(key string, fallback string) string {
-	value, ok := os.LookupEnv(key)
-	if !ok {
-		return fallback
-	}
-	return value
+type DB struct {
+	URL string `yaml:"url"`
 }
 
-func NewConfig() *Config {
-	var c Config
+type JWT struct {
+	AccessSecret  string `yaml:"accessSecret"`
+	RefreshSecret string `yaml:"refreshSecret"`
+}
 
-	c.Host = getEnv("HOST", "0.0.0.0")
-	c.Port = getEnv("PORT", "8000")
+type Public struct {
+	Hostname string `yaml:"hostname"`
+	Port     int    `yaml:"port"`
+}
 
-	c.DBHost = getEnv("DB_HOST", "")
-	c.DBPort = getEnv("DB_PORT", "")
-	c.DBUser = getEnv("DB_USER", "")
-	c.DBPass = getEnv("DB_PASS", "")
-	c.DBDatabase = getEnv("DB_DATABASE", "")
+type Internal struct {
+	Hostname string `yaml:"hostname"`
+	Port     int    `yaml:"port"`
+}
 
-	c.JwtAccessKeySecret = getEnv("JWT_ACCESS_KEY_SECRET", "a-change-me")
-	c.JwtRefreshKeySecret = getEnv("JWT_REFRESH_KEY_SECRET", "r-change-me")
+type API struct {
+	Public   Public   `yaml:"public"`
+	Internal Internal `yaml:"internal"`
+}
 
-	return &c
+type Admin struct {
+	Users []User `yaml:"users,flow,omitempty"`
+}
+
+type Anonymous struct {
+	Name string
+}
+
+type Role struct {
+	Name  string `yaml:"name"`
+	Users []User `yaml:"users,flow,omitempty"`
+}
+
+type User struct {
+	Email    string `yaml:"email"`
+	Password string `yaml:"password"`
 }

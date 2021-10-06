@@ -23,3 +23,4 @@ Dockerfile
 docker-compose.yml
 README.md
 Taskfile.yml
+*.db

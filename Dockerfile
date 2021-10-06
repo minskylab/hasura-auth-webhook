@@ -1,19 +1,11 @@
 # first stage - builder
-FROM golang:1.15 as builder
+FROM golang:1.17 as builder
 
 WORKDIR /app
-
-ARG GITHUB_TOKEN
-
-ENV GO111MODULE=on
-ENV GOPRIVATE="github.com/minskylab/*" 
-ENV GONOSUMDB="github.com/minskylab/*"
 
 # Copy dependency files
 COPY go.mod .
 COPY go.sum .
-
-RUN git config --global url."https://x-oauth-basic:${GITHUB_TOKEN}@github.com/minskylab".insteadOf "https://github.com/minskylab"
 
 RUN go mod download
 

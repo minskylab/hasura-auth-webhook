@@ -62,15 +62,19 @@ func (rc *RoleCreate) SetID(u uuid.UUID) *RoleCreate {
 	return rc
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (rc *RoleCreate) SetUserID(id uuid.UUID) *RoleCreate {
-	rc.mutation.SetUserID(id)
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (rc *RoleCreate) AddUserIDs(ids ...uuid.UUID) *RoleCreate {
+	rc.mutation.AddUserIDs(ids...)
 	return rc
 }
 
-// SetUser sets the "user" edge to the User entity.
-func (rc *RoleCreate) SetUser(u *User) *RoleCreate {
-	return rc.SetUserID(u.ID)
+// AddUsers adds the "users" edges to the User entity.
+func (rc *RoleCreate) AddUsers(u ...*User) *RoleCreate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return rc.AddUserIDs(ids...)
 }
 
 // Mutation returns the RoleMutation object of the builder.
@@ -169,9 +173,6 @@ func (rc *RoleCreate) check() error {
 	if _, ok := rc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "name"`)}
 	}
-	if _, ok := rc.mutation.UserID(); !ok {
-		return &ValidationError{Name: "user", err: errors.New("ent: missing required edge \"user\"")}
-	}
 	return nil
 }
 
@@ -228,12 +229,12 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		})
 		_node.Name = value
 	}
-	if nodes := rc.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := rc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   role.UserTable,
-			Columns: []string{role.UserColumn},
+			Table:   role.UsersTable,
+			Columns: role.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -245,7 +246,6 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.user_roles = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
