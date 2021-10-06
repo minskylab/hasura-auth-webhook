@@ -9,11 +9,8 @@ func NewDefaultConfig(roles ...Role) *Config {
 	config.API.Public.Hostname = "0.0.0.0"
 	config.API.Public.Port = 8080
 
-	config.Roles = append(config.Roles, Role{
-		Name: "admin",
-		Users: []User{
-			{Email: "admin@example.com", Password: "no-secure-password"},
-		},
+	config.Admin.Users = append(config.Admin.Users, User{
+		Email: "admin@example.com", Password: "no-secure-password",
 	})
 
 	config.DB.URL = "sqlite:auth.db?loc=auto&_fk=1"

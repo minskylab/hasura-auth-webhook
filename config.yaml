@@ -1,5 +1,5 @@
 db:
-  uri: "sqlite:auth.db?loc=auto&_fk=1"
+  url: "sqlite:auth.db?loc=auto&_fk=1"
 
 jwt:
   accessSecret: changemeplease
@@ -24,5 +24,7 @@ anonymous:
 roles:
   - name: default
     users:
-      - email: user@example.com
+      - email: user1@example.com
+        password: no-secure-password
+      - email: user2@example.com
         password: no-secure-password

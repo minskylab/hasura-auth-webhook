@@ -1,10 +1,12 @@
 package config
 
 type Config struct {
-	API   API    `yaml:"api"`
-	DB    DB     `yaml:"db"`
-	JWT   JWT    `yaml:"jwt"`
-	Roles []Role `yaml:"roles"`
+	API       API        `yaml:"api"`
+	DB        DB         `yaml:"db"`
+	JWT       JWT        `yaml:"jwt"`
+	Admin     Admin      `yaml:"admin"`
+	Anonymous *Anonymous `yaml:"admin"`
+	Roles     []Role     `yaml:"roles,mapstructure"`
 }
 
 type DB struct {
@@ -31,13 +33,20 @@ type API struct {
 	Internal Internal `yaml:"internal"`
 }
 
-type User struct {
-	Email    string `yaml:"email"`
-	Password string `yaml:"password"`
+type Admin struct {
+	Users []User `yaml:"users,flow,omitempty"`
+}
+
+type Anonymous struct {
+	Name string
 }
 
 type Role struct {
-	Name        string `yaml:"name"`
-	Users       []User `yaml:"users,omitempty"`
-	IsAnonymous bool   `yaml:"isAnonymous,omitempty"`
+	Name  string `yaml:"name"`
+	Users []User `yaml:"users,flow,omitempty"`
+}
+
+type User struct {
+	Email    string `yaml:"email"`
+	Password string `yaml:"password"`
 }

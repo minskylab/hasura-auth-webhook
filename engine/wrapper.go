@@ -18,7 +18,19 @@ func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, conf *c
 			log.Fatalf("failed creating schema resources: %v", err)
 		}
 
-		for _, r := range conf.Roles {
+		adminRole := config.Role{
+			Name:  "admin",
+			Users: conf.Admin.Users,
+		}
+
+		anonymousRole := config.Role{
+			Name:  conf.Anonymous.Name,
+			Users: []config.User{},
+		}
+
+		allRoles := append(conf.Roles, adminRole, anonymousRole)
+
+		for _, r := range allRoles {
 			role, err := client.Role.Create().SetName(r.Name).Save(context.Background())
 			if err != nil {
 				log.Warnf("failed creating role: %v", err)

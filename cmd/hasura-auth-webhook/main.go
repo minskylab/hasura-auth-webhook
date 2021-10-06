@@ -12,7 +12,9 @@ import (
 func main() {
 	logrus.SetLevel(logrus.DebugLevel)
 
-	conf := config.NewDefaultConfig()
+	// conf := config.NewDefaultConfig()
+	conf, _ := config.NewConfig(".")
+	// helpers.Log(conf)
 
 	client, err := db.OpenDBClient(conf)
 	if err != nil {
@@ -25,16 +27,13 @@ func main() {
 		[]byte(conf.JWT.RefreshSecret),
 	)
 
-	// authManager, err := auth.New(secretSource, c.isAnonymousAllowed)
 	var anonymous *auth.AnonymousRole
-	for _, r := range conf.Roles {
-		if r.IsAnonymous {
-			anonymous = &auth.AnonymousRole{
-				Name: r.Name,
-			}
-			break
+	if conf.Anonymous != nil {
+		anonymous = &auth.AnonymousRole{
+			Name: conf.Anonymous.Name,
 		}
 	}
+
 	authManager, err := auth.New(secretSource, anonymous)
 	if err != nil {
 		logrus.Panicf("%+v", err)
