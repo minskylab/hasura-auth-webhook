@@ -10,11 +10,13 @@ type PublicService interface {
 
 	Register(ctx *fiber.Ctx) error
 	Login(ctx *fiber.Ctx) error
+	RefreshToken(ctx *fiber.Ctx) error
 }
 
 type SignUpRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Role     string `json:"role"`
 }
 
 type SignUpResponse struct {
@@ -27,6 +29,11 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
+	UserID      string `json:"userID"`
+	AccessToken string `json:"accessToken"`
+}
+
+type RefreshTokenResponse struct {
 	UserID      string `json:"userID"`
 	AccessToken string `json:"accessToken"`
 }

@@ -13,6 +13,7 @@ func (e *Engine) PublicFiberApp() *fiber.App {
 
 	app.Post("/login", e.PublicService.Login)
 	app.Post("/register", e.PublicService.Register)
+	app.Post("/refresh", e.PublicService.RefreshToken)
 
 	return app
 }
