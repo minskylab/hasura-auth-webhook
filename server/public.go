@@ -50,6 +50,12 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(400), errors.Wrap(err, "error on parse body"))
 	}
 
+	// TODO: role allowed to register new users
+	// check header, get role from token
+	// valid roles to this endpoint := []
+	// if role not in valid_roles
+	// error 403
+
 	if ok := helpers.ValidateEmail(req.Email); !ok {
 		return errorResponse(ctx.Status(400), errors.New("wrong input data"))
 	}
