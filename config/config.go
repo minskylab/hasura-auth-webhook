@@ -2,11 +2,18 @@ package config
 
 type Config struct {
 	API       API        `yaml:"api"`
+	Refresh   *Refresh   `yaml:"refresh"`
 	DB        DB         `yaml:"db"`
 	JWT       JWT        `yaml:"jwt"`
 	Admin     Admin      `yaml:"admin"`
 	Anonymous *Anonymous `yaml:"admin"`
 	Roles     []Role     `yaml:"roles,mapstructure"`
+}
+
+type Refresh struct {
+	Domain   string `yaml:"domain"`
+	Secure   bool   `yaml:"secure"`
+	HttpOnly bool   `yaml:"httpOnly"`
 }
 
 type DB struct {

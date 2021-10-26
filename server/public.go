@@ -18,12 +18,20 @@ const (
 	refreshTokenCookieName = "refresh-token"
 )
 
+type RefreshCookie struct {
+	Domain   string `yaml:"domain"`
+	Secure   bool   `yaml:"secure"`
+	HttpOnly bool   `yaml:"httpOnly"`
+}
+
 type PublicServer struct {
 	client *ent.Client
 	auth   *auth.AuthManager
 
 	hostname string
 	port     int
+
+	refresh *RefreshCookie
 }
 
 func NewPublicServer(client *ent.Client, auth *auth.AuthManager, conf *config.Config) *PublicServer {
@@ -33,6 +41,8 @@ func NewPublicServer(client *ent.Client, auth *auth.AuthManager, conf *config.Co
 
 		hostname: conf.API.Public.Hostname,
 		port:     conf.API.Public.Port,
+
+		refresh: (*RefreshCookie)(conf.Refresh),
 	}
 }
 
@@ -121,10 +131,18 @@ func (p *PublicServer) Login(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(500), errors.New("there was an error creating the access token"))
 	}
 
-	ctx.Cookie(&fiber.Cookie{
-		Name:  "refresh-token",
+	cookieOps := fiber.Cookie{
+		Name:  refreshTokenCookieName,
 		Value: refreshToken,
-	})
+	}
+
+	if p.refresh != nil {
+		cookieOps.Domain = p.refresh.Domain
+		cookieOps.HTTPOnly = p.refresh.HttpOnly
+		cookieOps.Secure = p.refresh.Secure
+	}
+
+	ctx.Cookie(&cookieOps)
 
 	// parse json response
 	res := services.LoginResponse{
