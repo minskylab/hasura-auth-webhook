@@ -29,6 +29,12 @@ type RefreshCookie struct {
 	HttpOnly bool   `yaml:"httpOnly"`
 }
 
+type RefreshCookie struct {
+	Domain   string `yaml:"domain"`
+	Secure   bool   `yaml:"secure"`
+	HttpOnly bool   `yaml:"httpOnly"`
+}
+
 type PublicServer struct {
 	Client *ent.Client
 	Auth   *auth.AuthManager

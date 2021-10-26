@@ -1,7 +1,7 @@
 package config
 
 type Config struct {
-	API        API        `yaml:"api"`
+  API        API        `yaml:"api"`
 	Refresh    *Refresh   `yaml:"refresh"`
 	DB         DB         `yaml:"db"`
 	JWT        JWT        `yaml:"jwt"`
