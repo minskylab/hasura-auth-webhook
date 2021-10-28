@@ -16,6 +16,11 @@
 
 # Sensitive files
 .env
-.vscode
-.dccache
+
+# Others
+
+Dockerfile
+docker-compose.yml
+README.md
+Taskfile.yml
 *.db

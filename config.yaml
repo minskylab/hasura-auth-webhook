@@ -1,0 +1,30 @@
+db:
+  url: "sqlite:auth.db?loc=auto&_fk=1"
+
+jwt:
+  accessSecret: changemeplease
+  refreshSecret: changemeplease
+
+api:
+  public:
+    hostname: 0.0.0.0
+    port: 8080
+  internal:
+    hostname: 0.0.0.0
+    port: 1111
+
+admin:
+  users:
+    - email: admin@example.com
+      password: no-secure-password
+
+anonymous:
+  name: public
+
+roles:
+  - name: default
+    users:
+      - email: user1@example.com
+        password: no-secure-password
+      - email: user2@example.com
+        password: no-secure-password

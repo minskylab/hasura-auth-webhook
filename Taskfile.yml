@@ -5,12 +5,11 @@ dotenv: [".env"]
 tasks:
   temp-build:
     cmds:
-      # - go fmt cmd
       - go build -v -o /tmp/hasura-auth-webhook cmd/hasura-auth-webhook/*
 
   generate:
     cmds:
-      - go run github.com/99designs/gqlgen generate
+      - go run entgo.io/ent/cmd/ent generate ./ent/schema
 
   start:
     cmds:
