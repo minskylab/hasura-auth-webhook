@@ -4,18 +4,14 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/pkg/errors"
+	uuid "github.com/satori/go.uuid"
+
 	"github.com/minskylab/hasura-auth-webhook/auth"
 	"github.com/minskylab/hasura-auth-webhook/config"
 	"github.com/minskylab/hasura-auth-webhook/ent"
 	"github.com/minskylab/hasura-auth-webhook/ent/user"
 	"github.com/minskylab/hasura-auth-webhook/services"
-	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
-)
-
-const (
-	authorizationHeaderName = "Authorization"
-	bearerTokenWord         = "Bearer"
 )
 
 type InternalServer struct {
@@ -93,4 +89,19 @@ func (s *InternalServer) HasuraWebhook(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(200).JSON(res)
+}
+
+func (s *InternalServer) ListUsers(ctx *fiber.Ctx) error {
+	users, err := s.client.User.Query().WithRoles().All(ctx.Context())
+	if err != nil {
+		return errorResponse(ctx.Status(401), errors.Wrap(err, "users could not be found"))
+	}
+
+	// TODO: parse parse json response
+	// res := []services.User{
+	// 	services.User {
+	// 	}
+	// }
+
+	return ctx.Status(200).JSON(users)
 }

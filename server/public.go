@@ -4,18 +4,15 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/pkg/errors"
+	uuid "github.com/satori/go.uuid"
+
 	"github.com/minskylab/hasura-auth-webhook/auth"
 	"github.com/minskylab/hasura-auth-webhook/config"
 	"github.com/minskylab/hasura-auth-webhook/ent"
 	"github.com/minskylab/hasura-auth-webhook/ent/user"
 	"github.com/minskylab/hasura-auth-webhook/helpers"
 	"github.com/minskylab/hasura-auth-webhook/services"
-	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
-)
-
-const (
-	refreshTokenCookieName = "refresh-token"
 )
 
 type RefreshCookie struct {
@@ -62,9 +59,43 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 
 	// TODO: role allowed to register new users
 	// check header, get role from token
+	authorizationHeader := ctx.Get(authorizationHeaderName)
+	withBearerToken := strings.HasPrefix(authorizationHeader, bearerTokenWord)
+
+	if !withBearerToken {
+		return errorResponse(ctx.Status(401), errors.New("header not found"))
+	}
+
+	receivedAccessToken := strings.TrimSpace(strings.ReplaceAll(authorizationHeader, bearerTokenWord, ""))
+
+	// validate token and get raw data
+	payload, err := p.auth.ValidateAccessToken(receivedAccessToken)
+	if err != nil {
+		return errorResponse(ctx.Status(401), errors.Wrap(err, "invalid access token"))
+	}
+
+	// find user and roles by its userID
+	uid, err := uuid.FromString(payload.UserID)
+	if err != nil {
+		return errorResponse(ctx.Status(401), errors.Wrap(err, "invalid access token"))
+	}
+
+	me, err := p.client.User.Query().Where(user.ID(uid)).First(ctx.Context())
+	if err != nil {
+		return errorResponse(ctx.Status(401), errors.Wrap(err, "user not found or not exist"))
+	}
+
+	myRoles, err := me.QueryRoles().All(ctx.Context())
+	if err != nil {
+		return errorResponse(ctx.Status(401), errors.Wrap(err, "user hasn't valid roles"))
+	}
+
 	// valid roles to this endpoint := []
 	// if role not in valid_roles
 	// error 403
+	if !roleInRoles("admin", myRoles) {
+		return errorResponse(ctx.Status(403), errors.Wrap(err, "user hasn't enough permissions"))
+	}
 
 	if ok := helpers.ValidateEmail(req.Email); !ok {
 		return errorResponse(ctx.Status(400), errors.New("wrong input data"))

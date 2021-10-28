@@ -25,6 +25,7 @@ func (e *Engine) InternalFiberApp() *fiber.App {
 	app.Use(logger.New())
 
 	app.Get("/validate", e.InternalService.HasuraWebhook)
+	app.Get("/users", e.InternalService.ListUsers)
 
 	return app
 }
