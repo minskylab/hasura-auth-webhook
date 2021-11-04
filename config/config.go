@@ -11,6 +11,7 @@ type Config struct {
 }
 
 type Refresh struct {
+	Name     string `yaml:"name"`
 	Domain   string `yaml:"domain"`
 	Secure   bool   `yaml:"secure"`
 	HttpOnly bool   `yaml:"httpOnly"`
