@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -12,6 +13,15 @@ import (
 func (e *Engine) PublicFiberApp() *fiber.App {
 	app := fiber.New()
 	app.Use(logger.New())
+	app.Use(cors.New(cors.Config{
+		Next:             nil,
+		AllowOrigins:     "*",
+		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
+		AllowHeaders:     "",
+		AllowCredentials: true,
+		ExposeHeaders:    "",
+		MaxAge:           0,
+	}))
 
 	app.Post("/login", e.PublicService.Login)
 	app.Post("/register", e.PublicService.Register)
@@ -23,6 +33,15 @@ func (e *Engine) PublicFiberApp() *fiber.App {
 func (e *Engine) InternalFiberApp() *fiber.App {
 	app := fiber.New()
 	app.Use(logger.New())
+	app.Use(cors.New(cors.Config{
+		Next:             nil,
+		AllowOrigins:     "*",
+		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
+		AllowHeaders:     "",
+		AllowCredentials: true,
+		ExposeHeaders:    "",
+		MaxAge:           0,
+	}))
 
 	app.Get("/validate", e.InternalService.HasuraWebhook)
 	app.Get("/users", e.InternalService.ListUsers)

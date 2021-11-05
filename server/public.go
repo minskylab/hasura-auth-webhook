@@ -16,6 +16,7 @@ import (
 )
 
 type RefreshCookie struct {
+	Name     string `yaml:"name"`
 	Domain   string `yaml:"domain"`
 	Secure   bool   `yaml:"secure"`
 	HttpOnly bool   `yaml:"httpOnly"`
@@ -163,11 +164,12 @@ func (p *PublicServer) Login(ctx *fiber.Ctx) error {
 	}
 
 	cookieOps := fiber.Cookie{
-		Name:  refreshTokenCookieName,
+		Name:  defaultRefreshTokenCookieName,
 		Value: refreshToken,
 	}
 
 	if p.refresh != nil {
+		cookieOps.Name = p.refresh.Name
 		cookieOps.Domain = p.refresh.Domain
 		cookieOps.HTTPOnly = p.refresh.HttpOnly
 		cookieOps.Secure = p.refresh.Secure
@@ -186,7 +188,13 @@ func (p *PublicServer) Login(ctx *fiber.Ctx) error {
 
 func (p *PublicServer) RefreshToken(ctx *fiber.Ctx) error {
 	// get cookie
-	refreshToken := ctx.Cookies(refreshTokenCookieName)
+	cookieName := defaultRefreshTokenCookieName
+
+	if p.refresh != nil {
+		cookieName = p.refresh.Name
+	}
+
+	refreshToken := ctx.Cookies(cookieName)
 
 	if refreshToken == "" {
 		return errorResponse(ctx.Status(401), errors.New("header not found"))
