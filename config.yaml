@@ -28,3 +28,15 @@ roles:
         password: no-secure-password
       - email: user2@example.com
         password: no-secure-password
+      - email: bregy@minsky.cc
+        password: admin1234
+
+mailersend:
+  url: https://web-platform.teleus.minsky.cc/auth/recovery?token=
+  key: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMjkxZjc4NGNjZTlmZThhZjM2YjlhOTAxMmFhZWRhZWZjMjM5MTdlYzA0ZTA3YmQzODVmYjY4MWZkYjY0ODVjMTUxNTlkYzU2ODlhMzdhYmQiLCJpYXQiOjE2MzYxMzc3MjMuNjQyMTI0LCJuYmYiOjE2MzYxMzc3MjMuNjQyMTI3LCJleHAiOjQ3OTE4MTEzMjMuNTg3ODAyLCJzdWIiOiIxNTM3MiIsInNjb3BlcyI6WyJlbWFpbF9mdWxsIiwiZG9tYWluc19mdWxsIiwiYWN0aXZpdHlfZnVsbCIsImFuYWx5dGljc19mdWxsIiwidG9rZW5zX2Z1bGwiLCJ3ZWJob29rc19mdWxsIiwidGVtcGxhdGVzX2Z1bGwiLCJzdXBwcmVzc2lvbnNfZnVsbCJdfQ.mc6jnjcsC5jIsBYX8hWrjZXSa07vaFZSKlOfhvaM0NKpjuK-qmdgWCdTDHIhd0v5RzL4m-IMSvw3p4U8TeZJ7QmPDhmRtDR1n2EJmhBsnHj0-dtS8zHfT6ZvaWU3IaxXoZF6GeA5aIMNMCSe3qJftrcO8Gmmrl2B3wYAvMF4mpInjTiuZVf9SvHYgd90INlHEAaUkClVsXgyTHJlYz-k_1R1ABkFRS04-SiT3QiVJkEW1gvWcC3ljHw8qURBdilgDCjY5OXgvyrv0i0H6SGFTozmYM-vXVVlm_N6qxnZYOjZ6U2-Y3OdwWAkE86mL_AkI61gwNWiF3GCm0tbZk1NQUuG8pJQq2UNHQ1BOeBDDzxeh9DkurPPB5kfylkLILsjCn_jmGXTeFfCXBzzmlNk7HOZjlzsGOvfLTwj34b8b2QCSNy_K5RL_vJ5paQnFTbz4xzfsRKyVSfeSiqV8nQ4EO3BJnZp5gfMXfiwc3GKA_mmrngRryNPqEER2W10x5SmtKiy2YwPu5_1YKuw6a85jdeDZorLQNuUJUNNl1-APiKtI8ulIemTQf3ikIokLSiboB_kBf6A6pVLRqc_jzPDWr6gXzCScfvJVz_yEtPwP5-jwWJ_C-cLTmkHLKdI4ukJ0B8NxNFldJo5ZXiMNy91IXLHkRLIqhvMi4XtaLRAZ-I
+  template: 7dnvo4doz6g5r86y
+  support: test@minsky.cc
+  name: Bregy
+  user:
+    name: Bregy
+    email: test@minsky.cc

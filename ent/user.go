@@ -26,6 +26,8 @@ type User struct {
 	Email string `json:"email,omitempty"`
 	// HashedPassword holds the value of the "hashedPassword" field.
 	HashedPassword string `json:"-"`
+	// RecoverPasswordToken holds the value of the "recoverPasswordToken" field.
+	RecoverPasswordToken string `json:"-"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges UserEdges `json:"edges"`
@@ -54,7 +56,7 @@ func (*User) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldEmail, user.FieldHashedPassword:
+		case user.FieldEmail, user.FieldHashedPassword, user.FieldRecoverPasswordToken:
 			values[i] = new(sql.NullString)
 		case user.FieldCreatedAt, user.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -105,6 +107,12 @@ func (u *User) assignValues(columns []string, values []interface{}) error {
 			} else if value.Valid {
 				u.HashedPassword = value.String
 			}
+		case user.FieldRecoverPasswordToken:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field recoverPasswordToken", values[i])
+			} else if value.Valid {
+				u.RecoverPasswordToken = value.String
+			}
 		}
 	}
 	return nil
@@ -145,6 +153,7 @@ func (u *User) String() string {
 	builder.WriteString(", email=")
 	builder.WriteString(u.Email)
 	builder.WriteString(", hashedPassword=<sensitive>")
+	builder.WriteString(", recoverPasswordToken=<sensitive>")
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -21,6 +21,8 @@ const (
 	FieldEmail = "email"
 	// FieldHashedPassword holds the string denoting the hashedpassword field in the database.
 	FieldHashedPassword = "hashed_password"
+	// FieldRecoverPasswordToken holds the string denoting the recoverpasswordtoken field in the database.
+	FieldRecoverPasswordToken = "recover_password_token"
 	// EdgeRoles holds the string denoting the roles edge name in mutations.
 	EdgeRoles = "roles"
 	// Table holds the table name of the user in the database.
@@ -39,6 +41,7 @@ var Columns = []string{
 	FieldUpdatedAt,
 	FieldEmail,
 	FieldHashedPassword,
+	FieldRecoverPasswordToken,
 }
 
 var (

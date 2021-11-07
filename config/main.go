@@ -8,7 +8,7 @@ import (
 )
 
 func NewConfig(path string) (*Config, error) {
-	config := &Config{}
+	config := NewDefaultConfig()
 
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")

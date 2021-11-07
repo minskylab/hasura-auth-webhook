@@ -63,6 +63,20 @@ func (uc *UserCreate) SetHashedPassword(s string) *UserCreate {
 	return uc
 }
 
+// SetRecoverPasswordToken sets the "recoverPasswordToken" field.
+func (uc *UserCreate) SetRecoverPasswordToken(s string) *UserCreate {
+	uc.mutation.SetRecoverPasswordToken(s)
+	return uc
+}
+
+// SetNillableRecoverPasswordToken sets the "recoverPasswordToken" field if the given value is not nil.
+func (uc *UserCreate) SetNillableRecoverPasswordToken(s *string) *UserCreate {
+	if s != nil {
+		uc.SetRecoverPasswordToken(*s)
+	}
+	return uc
+}
+
 // SetID sets the "id" field.
 func (uc *UserCreate) SetID(u uuid.UUID) *UserCreate {
 	uc.mutation.SetID(u)
@@ -246,6 +260,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldHashedPassword,
 		})
 		_node.HashedPassword = value
+	}
+	if value, ok := uc.mutation.RecoverPasswordToken(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldRecoverPasswordToken,
+		})
+		_node.RecoverPasswordToken = value
 	}
 	if nodes := uc.mutation.RolesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
