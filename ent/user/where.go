@@ -122,6 +122,13 @@ func HashedPassword(v string) predicate.User {
 	})
 }
 
+// RecoverPasswordToken applies equality check predicate on the "recoverPasswordToken" field. It's identical to RecoverPasswordTokenEQ.
+func RecoverPasswordToken(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldRecoverPasswordToken), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -493,6 +500,131 @@ func HashedPasswordEqualFold(v string) predicate.User {
 func HashedPasswordContainsFold(v string) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldHashedPassword), v))
+	})
+}
+
+// RecoverPasswordTokenEQ applies the EQ predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenEQ(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldRecoverPasswordToken), v))
+	})
+}
+
+// RecoverPasswordTokenNEQ applies the NEQ predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenNEQ(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldRecoverPasswordToken), v))
+	})
+}
+
+// RecoverPasswordTokenIn applies the In predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenIn(vs ...string) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldRecoverPasswordToken), v...))
+	})
+}
+
+// RecoverPasswordTokenNotIn applies the NotIn predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenNotIn(vs ...string) predicate.User {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.User(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldRecoverPasswordToken), v...))
+	})
+}
+
+// RecoverPasswordTokenGT applies the GT predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenGT(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldRecoverPasswordToken), v))
+	})
+}
+
+// RecoverPasswordTokenGTE applies the GTE predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenGTE(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldRecoverPasswordToken), v))
+	})
+}
+
+// RecoverPasswordTokenLT applies the LT predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenLT(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldRecoverPasswordToken), v))
+	})
+}
+
+// RecoverPasswordTokenLTE applies the LTE predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenLTE(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldRecoverPasswordToken), v))
+	})
+}
+
+// RecoverPasswordTokenContains applies the Contains predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenContains(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.Contains(s.C(FieldRecoverPasswordToken), v))
+	})
+}
+
+// RecoverPasswordTokenHasPrefix applies the HasPrefix predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenHasPrefix(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.HasPrefix(s.C(FieldRecoverPasswordToken), v))
+	})
+}
+
+// RecoverPasswordTokenHasSuffix applies the HasSuffix predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenHasSuffix(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.HasSuffix(s.C(FieldRecoverPasswordToken), v))
+	})
+}
+
+// RecoverPasswordTokenIsNil applies the IsNil predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenIsNil() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.IsNull(s.C(FieldRecoverPasswordToken)))
+	})
+}
+
+// RecoverPasswordTokenNotNil applies the NotNil predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenNotNil() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.NotNull(s.C(FieldRecoverPasswordToken)))
+	})
+}
+
+// RecoverPasswordTokenEqualFold applies the EqualFold predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenEqualFold(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.EqualFold(s.C(FieldRecoverPasswordToken), v))
+	})
+}
+
+// RecoverPasswordTokenContainsFold applies the ContainsFold predicate on the "recoverPasswordToken" field.
+func RecoverPasswordTokenContainsFold(v string) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		s.Where(sql.ContainsFold(s.C(FieldRecoverPasswordToken), v))
 	})
 }
 

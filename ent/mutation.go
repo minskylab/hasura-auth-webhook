@@ -531,20 +531,21 @@ func (m *RoleMutation) ResetEdge(name string) error {
 // UserMutation represents an operation that mutates the User nodes in the graph.
 type UserMutation struct {
 	config
-	op             Op
-	typ            string
-	id             *uuid.UUID
-	created_at     *time.Time
-	updated_at     *time.Time
-	email          *string
-	hashedPassword *string
-	clearedFields  map[string]struct{}
-	roles          map[uuid.UUID]struct{}
-	removedroles   map[uuid.UUID]struct{}
-	clearedroles   bool
-	done           bool
-	oldValue       func(context.Context) (*User, error)
-	predicates     []predicate.User
+	op                   Op
+	typ                  string
+	id                   *uuid.UUID
+	created_at           *time.Time
+	updated_at           *time.Time
+	email                *string
+	hashedPassword       *string
+	recoverPasswordToken *string
+	clearedFields        map[string]struct{}
+	roles                map[uuid.UUID]struct{}
+	removedroles         map[uuid.UUID]struct{}
+	clearedroles         bool
+	done                 bool
+	oldValue             func(context.Context) (*User, error)
+	predicates           []predicate.User
 }
 
 var _ ent.Mutation = (*UserMutation)(nil)
@@ -776,6 +777,55 @@ func (m *UserMutation) ResetHashedPassword() {
 	m.hashedPassword = nil
 }
 
+// SetRecoverPasswordToken sets the "recoverPasswordToken" field.
+func (m *UserMutation) SetRecoverPasswordToken(s string) {
+	m.recoverPasswordToken = &s
+}
+
+// RecoverPasswordToken returns the value of the "recoverPasswordToken" field in the mutation.
+func (m *UserMutation) RecoverPasswordToken() (r string, exists bool) {
+	v := m.recoverPasswordToken
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRecoverPasswordToken returns the old "recoverPasswordToken" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldRecoverPasswordToken(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldRecoverPasswordToken is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldRecoverPasswordToken requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRecoverPasswordToken: %w", err)
+	}
+	return oldValue.RecoverPasswordToken, nil
+}
+
+// ClearRecoverPasswordToken clears the value of the "recoverPasswordToken" field.
+func (m *UserMutation) ClearRecoverPasswordToken() {
+	m.recoverPasswordToken = nil
+	m.clearedFields[user.FieldRecoverPasswordToken] = struct{}{}
+}
+
+// RecoverPasswordTokenCleared returns if the "recoverPasswordToken" field was cleared in this mutation.
+func (m *UserMutation) RecoverPasswordTokenCleared() bool {
+	_, ok := m.clearedFields[user.FieldRecoverPasswordToken]
+	return ok
+}
+
+// ResetRecoverPasswordToken resets all changes to the "recoverPasswordToken" field.
+func (m *UserMutation) ResetRecoverPasswordToken() {
+	m.recoverPasswordToken = nil
+	delete(m.clearedFields, user.FieldRecoverPasswordToken)
+}
+
 // AddRoleIDs adds the "roles" edge to the Role entity by ids.
 func (m *UserMutation) AddRoleIDs(ids ...uuid.UUID) {
 	if m.roles == nil {
@@ -849,7 +899,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 4)
+	fields := make([]string, 0, 5)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -861,6 +911,9 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.hashedPassword != nil {
 		fields = append(fields, user.FieldHashedPassword)
+	}
+	if m.recoverPasswordToken != nil {
+		fields = append(fields, user.FieldRecoverPasswordToken)
 	}
 	return fields
 }
@@ -878,6 +931,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Email()
 	case user.FieldHashedPassword:
 		return m.HashedPassword()
+	case user.FieldRecoverPasswordToken:
+		return m.RecoverPasswordToken()
 	}
 	return nil, false
 }
@@ -895,6 +950,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldEmail(ctx)
 	case user.FieldHashedPassword:
 		return m.OldHashedPassword(ctx)
+	case user.FieldRecoverPasswordToken:
+		return m.OldRecoverPasswordToken(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -932,6 +989,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetHashedPassword(v)
 		return nil
+	case user.FieldRecoverPasswordToken:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRecoverPasswordToken(v)
+		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -961,7 +1025,11 @@ func (m *UserMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *UserMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(user.FieldRecoverPasswordToken) {
+		fields = append(fields, user.FieldRecoverPasswordToken)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -974,6 +1042,11 @@ func (m *UserMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *UserMutation) ClearField(name string) error {
+	switch name {
+	case user.FieldRecoverPasswordToken:
+		m.ClearRecoverPasswordToken()
+		return nil
+	}
 	return fmt.Errorf("unknown User nullable field %s", name)
 }
 
@@ -992,6 +1065,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldHashedPassword:
 		m.ResetHashedPassword()
+		return nil
+	case user.FieldRecoverPasswordToken:
+		m.ResetRecoverPasswordToken()
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)

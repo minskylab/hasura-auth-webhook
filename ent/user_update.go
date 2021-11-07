@@ -61,6 +61,26 @@ func (uu *UserUpdate) SetHashedPassword(s string) *UserUpdate {
 	return uu
 }
 
+// SetRecoverPasswordToken sets the "recoverPasswordToken" field.
+func (uu *UserUpdate) SetRecoverPasswordToken(s string) *UserUpdate {
+	uu.mutation.SetRecoverPasswordToken(s)
+	return uu
+}
+
+// SetNillableRecoverPasswordToken sets the "recoverPasswordToken" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableRecoverPasswordToken(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetRecoverPasswordToken(*s)
+	}
+	return uu
+}
+
+// ClearRecoverPasswordToken clears the value of the "recoverPasswordToken" field.
+func (uu *UserUpdate) ClearRecoverPasswordToken() *UserUpdate {
+	uu.mutation.ClearRecoverPasswordToken()
+	return uu
+}
+
 // AddRoleIDs adds the "roles" edge to the Role entity by IDs.
 func (uu *UserUpdate) AddRoleIDs(ids ...uuid.UUID) *UserUpdate {
 	uu.mutation.AddRoleIDs(ids...)
@@ -211,6 +231,19 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldHashedPassword,
 		})
 	}
+	if value, ok := uu.mutation.RecoverPasswordToken(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldRecoverPasswordToken,
+		})
+	}
+	if uu.mutation.RecoverPasswordTokenCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: user.FieldRecoverPasswordToken,
+		})
+	}
 	if uu.mutation.RolesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -313,6 +346,26 @@ func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
 // SetHashedPassword sets the "hashedPassword" field.
 func (uuo *UserUpdateOne) SetHashedPassword(s string) *UserUpdateOne {
 	uuo.mutation.SetHashedPassword(s)
+	return uuo
+}
+
+// SetRecoverPasswordToken sets the "recoverPasswordToken" field.
+func (uuo *UserUpdateOne) SetRecoverPasswordToken(s string) *UserUpdateOne {
+	uuo.mutation.SetRecoverPasswordToken(s)
+	return uuo
+}
+
+// SetNillableRecoverPasswordToken sets the "recoverPasswordToken" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableRecoverPasswordToken(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetRecoverPasswordToken(*s)
+	}
+	return uuo
+}
+
+// ClearRecoverPasswordToken clears the value of the "recoverPasswordToken" field.
+func (uuo *UserUpdateOne) ClearRecoverPasswordToken() *UserUpdateOne {
+	uuo.mutation.ClearRecoverPasswordToken()
 	return uuo
 }
 
@@ -488,6 +541,19 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: user.FieldHashedPassword,
+		})
+	}
+	if value, ok := uuo.mutation.RecoverPasswordToken(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Value:  value,
+			Column: user.FieldRecoverPasswordToken,
+		})
+	}
+	if uuo.mutation.RecoverPasswordTokenCleared() {
+		_spec.Fields.Clear = append(_spec.Fields.Clear, &sqlgraph.FieldSpec{
+			Type:   field.TypeString,
+			Column: user.FieldRecoverPasswordToken,
 		})
 	}
 	if uuo.mutation.RolesCleared() {
