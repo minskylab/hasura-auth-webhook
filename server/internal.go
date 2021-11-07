@@ -106,3 +106,28 @@ func (s *InternalServer) ListUsers(ctx *fiber.Ctx) error {
 
 	return ctx.Status(200).JSON(users)
 }
+
+func (s *InternalServer) Me(ctx *fiber.Ctx) error {
+	authorizationHeader := ctx.Get(authorizationHeaderName)
+
+	receivedAccessToken := strings.TrimSpace(strings.ReplaceAll(authorizationHeader, bearerTokenWord, ""))
+
+	// validate token and get raw data
+	payload, err := s.auth.ValidateAccessToken(receivedAccessToken)
+	if err != nil {
+		return errorResponse(ctx.Status(401), errors.Wrap(err, "invalid access token"))
+	}
+
+	// find user and roles by its userID
+	// uid, err := uuid.FromString(payload.UserID)
+	// if err != nil {
+	// 	return errorResponse(ctx.Status(401), errors.Wrap(err, "invalid access token"))
+	// }
+
+	res := services.MeResponse{
+		UserID: payload.UserID,
+		RoleID: payload.RoleID,
+	}
+
+	return ctx.Status(200).JSON(res)
+}

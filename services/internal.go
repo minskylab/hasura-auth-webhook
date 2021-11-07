@@ -8,10 +8,8 @@ type InternalService interface {
 
 	HasuraWebhook(ctx *fiber.Ctx) error
 	ListUsers(ctx *fiber.Ctx) error
-	// GetUserById(ctx *fiber.Ctx) error
-	// CreateUserById(ctx *fiber.Ctx) error
-	// UpdateUserById(ctx *fiber.Ctx) error
-	// DeleteUserById(ctx *fiber.Ctx) error
+
+	Me(ctx *fiber.Ctx) error
 }
 
 type HasuraWebhookRequest struct{}
@@ -34,3 +32,8 @@ type User struct {
 }
 
 type ListUsersResponse []User
+
+type MeResponse struct {
+	UserID string  `json:"userID"`
+	RoleID *string `json:"roleID"`
+}
