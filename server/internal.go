@@ -118,12 +118,6 @@ func (s *InternalServer) Me(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(401), errors.Wrap(err, "invalid access token"))
 	}
 
-	// find user and roles by its userID
-	// uid, err := uuid.FromString(payload.UserID)
-	// if err != nil {
-	// 	return errorResponse(ctx.Status(401), errors.Wrap(err, "invalid access token"))
-	// }
-
 	res := services.MeResponse{
 		UserID: payload.UserID,
 		RoleID: payload.RoleID,
