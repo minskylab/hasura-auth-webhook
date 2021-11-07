@@ -1,13 +1,14 @@
 package config
 
 type Config struct {
-	API       API        `yaml:"api"`
-	Refresh   *Refresh   `yaml:"refresh"`
-	DB        DB         `yaml:"db"`
-	JWT       JWT        `yaml:"jwt"`
-	Admin     Admin      `yaml:"admin"`
-	Anonymous *Anonymous `yaml:"admin"`
-	Roles     []Role     `yaml:"roles,mapstructure"`
+	API        API        `yaml:"api"`
+	Refresh    *Refresh   `yaml:"refresh"`
+	DB         DB         `yaml:"db"`
+	JWT        JWT        `yaml:"jwt"`
+	Admin      Admin      `yaml:"admin"`
+	Anonymous  *Anonymous `yaml:"admin"`
+	Roles      []Role     `yaml:"roles,mapstructure"`
+	Mailersend Mailersend `yaml:"mailersend"`
 }
 
 type Refresh struct {
@@ -46,7 +47,7 @@ type Admin struct {
 }
 
 type Anonymous struct {
-	Name string
+	Name string `yaml:"name"`
 }
 
 type Role struct {
@@ -57,4 +58,18 @@ type Role struct {
 type User struct {
 	Email    string `yaml:"email"`
 	Password string `yaml:"password"`
+}
+
+type UserInfo struct {
+	Name  string `yaml:"name"`
+	Email string `yaml:"email"`
+}
+
+type Mailersend struct {
+	Key      string   `yaml:"key"`
+	Template string   `yaml:"template"`
+	Support  string   `yaml:"support"`
+	Name     string   `yaml:"name"`
+	User     UserInfo `yaml:"user"`
+	Url      string   `yaml:"url"`
 }

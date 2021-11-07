@@ -9,7 +9,7 @@ import (
 const (
 	authorizationHeaderName       = "Authorization"
 	bearerTokenWord               = "Bearer"
-	defaultRefreshTokenCookieName = "refresh-token"
+	defaultRefreshTokenCookieName = "Refresh-token"
 )
 
 func errorResponse(ctx *fiber.Ctx, err error) error {

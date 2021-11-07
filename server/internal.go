@@ -22,7 +22,7 @@ type InternalServer struct {
 	port     int
 }
 
-func NewInternalServer(client *ent.Client, auth *auth.AuthManager, conf *config.Config) *InternalServer {
+func NewInternalServer(client *ent.Client, auth *auth.AuthManager, conf *config.Config) services.InternalService {
 	return &InternalServer{
 		client: client,
 		auth:   auth,
