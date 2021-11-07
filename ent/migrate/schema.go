@@ -28,6 +28,7 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "email", Type: field.TypeString, Unique: true},
 		{Name: "hashed_password", Type: field.TypeString},
+		{Name: "recover_password_token", Type: field.TypeString, Nullable: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{

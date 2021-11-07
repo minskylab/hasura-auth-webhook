@@ -16,6 +16,8 @@ func (e *Engine) PublicFiberApp() *fiber.App {
 	app.Post("/login", e.PublicService.Login)
 	app.Post("/register", e.PublicService.Register)
 	app.Post("/refresh", e.PublicService.RefreshToken)
+	app.Get("/recover-password", e.PublicService.RecoverPassword)
+	app.Post("/change-password", e.PublicService.ChangePassword)
 
 	return app
 }

@@ -28,3 +28,13 @@ roles:
         password: no-secure-password
       - email: user2@example.com
         password: no-secure-password
+
+mailersend:
+  url: https://web-platform.teleus.minsky.cc/auth/recovery?token=
+  key: Insert MailerSend Key Here
+  template: 7dnvo4doz6g5r86y
+  support: test@minsky.cc
+  name: Bregy
+  user:
+    name: Bregy
+    email: test@minsky.cc

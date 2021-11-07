@@ -23,6 +23,7 @@ func (User) Fields() []ent.Field {
 
 		field.String("email").Unique(),
 		field.String("hashedPassword").Sensitive(),
+		field.String("recoverPasswordToken").Sensitive().Optional(),
 	}
 }
 
