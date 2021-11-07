@@ -21,13 +21,15 @@ admin:
 anonymous:
   name: public
 
-# roles:
-#   - name: default
-#     users:
-#       - email: user1@example.com
-#         password: no-secure-password
-#       - email: user2@example.com
-#         password: no-secure-password
+roles:
+  - name: default
+    users:
+      - email: user1@example.com
+        password: no-secure-password
+      - email: user2@example.com
+        password: no-secure-password
+      - email: bregy@minsky.cc
+        password: admin1234
 
 mailersend:
   url: https://web-platform.teleus.minsky.cc/auth/recovery?token=
