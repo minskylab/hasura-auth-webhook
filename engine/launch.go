@@ -47,6 +47,7 @@ func (e *Engine) InternalFiberApp() *fiber.App {
 
 	app.Get("/validate", e.InternalService.HasuraWebhook)
 	app.Get("/users", e.InternalService.ListUsers)
+	app.Get("/me", e.InternalService.Me)
 
 	return app
 }

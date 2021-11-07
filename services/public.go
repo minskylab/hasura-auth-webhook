@@ -11,6 +11,7 @@ type PublicService interface {
 	Register(ctx *fiber.Ctx) error
 	Login(ctx *fiber.Ctx) error
 	RefreshToken(ctx *fiber.Ctx) error
+
 	RecoverPassword(ctx *fiber.Ctx) error
 	ChangePassword(ctx *fiber.Ctx) error
 }
@@ -28,6 +29,8 @@ type SignUpResponse struct {
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+
+	Role *string `json:"role"`
 }
 
 type LoginResponse struct {
