@@ -85,7 +85,8 @@ func (s *InternalServer) HasuraWebhook(ctx *fiber.Ctx) error {
 	// parse json response
 	res := services.HasuraWebhookResponse{
 		HasuraUserId: u.ID.String(),
-		HasuraRole:   roles[0].Name,
+		// TODO: implement multiple roles (selecting from login)
+		HasuraRole: roles[0].Name,
 	}
 
 	return ctx.Status(200).JSON(res)
