@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"net/mail"
 	"strings"
 	"time"
@@ -270,7 +269,7 @@ func (p *PublicServer) RecoverPassword(ctx *fiber.Ctx) error {
 
 	u, err := p.Client.User.Query().Where(user.Email(email)).Only(ctx.Context())
 	if err != nil {
-		return errorResponse(ctx.Status(400), errors.WithMessage(err, "wrong credentials"))
+		return errorResponse(ctx.Status(fiber.StatusBadRequest), errors.WithMessage(err, "wrong credentials"))
 	}
 	type claims struct {
 		jwt.StandardClaims
@@ -284,10 +283,8 @@ func (p *PublicServer) RecoverPassword(ctx *fiber.Ctx) error {
 		Email: email,
 	}).SignedString([]byte(uuid.NewV4().String()))
 	if err != nil {
-		return errorResponse(ctx.Status(500), err)
+		return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
 	}
-
-	fmt.Println(key)
 
 	{
 		err = p.Client.User.UpdateOne(u).SetRecoverPasswordToken(key).Exec(ctx.Context())
@@ -330,7 +327,7 @@ func (p *PublicServer) RecoverPassword(ctx *fiber.Ctx) error {
 
 	_, err = p.Mailersend.Email.Send(ctx.Context(), message)
 	if err != nil {
-		return errorResponse(ctx.Status(500), err)
+		return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
 	}
 
 	return nil
@@ -343,7 +340,7 @@ func (p *PublicServer) ChangePassword(ctx *fiber.Ctx) error {
 	}
 	var req services.ChangePasswordRequest
 	if err := ctx.BodyParser(&req); err != nil {
-		return errorResponse(ctx.Status(400), errors.Wrap(err, "error on body parser"))
+		return errorResponse(ctx.Status(fiber.StatusBadRequest), errors.Wrap(err, "error on body parser"))
 	}
 
 	email := ""
@@ -355,26 +352,30 @@ func (p *PublicServer) ChangePassword(ctx *fiber.Ctx) error {
 		return "", nil
 	})
 	if err != nil {
-		return errorResponse(ctx.Status(400), err)
+		return errorResponse(ctx.Status(fiber.StatusBadRequest), err)
+	}
+
+	if email == "" {
+		return errorResponse(ctx.Status(fiber.StatusBadRequest), errors.New("invalid token"))
 	}
 
 	u, err := p.Client.User.Query().Where(user.Email(email)).Only(ctx.Context())
 	if err != nil {
-		return errorResponse(ctx.Status(400), errors.WithMessage(err, "wrong credentials"))
+		return errorResponse(ctx.Status(fiber.StatusBadRequest), errors.WithMessage(err, "wrong credentials"))
 	}
 
 	if u.RecoverPasswordToken != req.Token {
-		return errorResponse(ctx.Status(400), errors.New("wrong token"))
+		return errorResponse(ctx.Status(fiber.StatusBadRequest), errors.New("wrong token"))
 	}
 
 	hashedPassword, err := helpers.HashPassword(req.Password)
 	if err != nil {
-		return errorResponse(ctx.Status(500), err)
+		return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
 	}
 
-	err = p.Client.User.UpdateOne(u).SetHashedPassword(hashedPassword).Exec(ctx.Context())
+	err = p.Client.User.UpdateOne(u).SetHashedPassword(hashedPassword).SetRecoverPasswordToken("").Exec(ctx.Context())
 	if err != nil {
-		return errorResponse(ctx.Status(500), err)
+		return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
 	}
 
 	return nil
