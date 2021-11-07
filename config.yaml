@@ -31,7 +31,7 @@ anonymous:
 
 mailersend:
   url: https://web-platform.teleus.minsky.cc/auth/recovery?token=
-  key: Insert Mailersend Key
+  key: Insert MailerSend Key Here
   template: 7dnvo4doz6g5r86y
   support: test@minsky.cc
   name: Bregy
