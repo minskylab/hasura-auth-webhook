@@ -9,6 +9,7 @@ import (
 // TokenPayload contains the user id of the token
 type TokenPayload struct {
 	UserID string
+	RoleID *string
 }
 
 // AuthManager provide methods to dispatch and validate tokens.

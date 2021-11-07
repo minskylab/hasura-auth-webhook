@@ -13,7 +13,7 @@ func main() {
 	logrus.SetLevel(logrus.DebugLevel)
 
 	// conf := config.NewDefaultConfig()
-	conf, _ := config.NewConfig(".")
+	conf, _ := config.NewConfig("config.yaml")
 	// helpers.Log(conf)
 
 	client, err := db.OpenDBClient(conf)
