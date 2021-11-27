@@ -22,6 +22,20 @@ anonymous:
   name: public
 
 # roles:
+#   - name: doctor
+#     children:
+#       - patient
+#     users:
+#       - email: xxx
+#         password: yyy
+#   - name: physitian
+#     child: patient
+#   - name: patient
+#     parents:
+#       - doctor
+#       - physitian
+
+# roles:
 #   - name: default
 #     users:
 #       - email: user1@example.com
