@@ -57,6 +57,7 @@ type Role struct {
 	Child string `yaml:"child,omitempty"`
 	Children string `yaml:"children,omitempty"`
 	Users []User `yaml:"users,flow,omitempty"`
+	Public bool `yaml:"public,omitempty"`
 }
 
 type User struct {

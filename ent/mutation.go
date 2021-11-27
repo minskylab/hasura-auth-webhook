@@ -32,19 +32,25 @@ const (
 // RoleMutation represents an operation that mutates the Role nodes in the graph.
 type RoleMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uuid.UUID
-	created_at    *time.Time
-	updated_at    *time.Time
-	name          *string
-	clearedFields map[string]struct{}
-	users         map[uuid.UUID]struct{}
-	removedusers  map[uuid.UUID]struct{}
-	clearedusers  bool
-	done          bool
-	oldValue      func(context.Context) (*Role, error)
-	predicates    []predicate.Role
+	op              Op
+	typ             string
+	id              *uuid.UUID
+	created_at      *time.Time
+	updated_at      *time.Time
+	name            *string
+	clearedFields   map[string]struct{}
+	users           map[uuid.UUID]struct{}
+	removedusers    map[uuid.UUID]struct{}
+	clearedusers    bool
+	children        map[uuid.UUID]struct{}
+	removedchildren map[uuid.UUID]struct{}
+	clearedchildren bool
+	parents         map[uuid.UUID]struct{}
+	removedparents  map[uuid.UUID]struct{}
+	clearedparents  bool
+	done            bool
+	oldValue        func(context.Context) (*Role, error)
+	predicates      []predicate.Role
 }
 
 var _ ent.Mutation = (*RoleMutation)(nil)
@@ -294,6 +300,114 @@ func (m *RoleMutation) ResetUsers() {
 	m.removedusers = nil
 }
 
+// AddChildIDs adds the "children" edge to the Role entity by ids.
+func (m *RoleMutation) AddChildIDs(ids ...uuid.UUID) {
+	if m.children == nil {
+		m.children = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.children[ids[i]] = struct{}{}
+	}
+}
+
+// ClearChildren clears the "children" edge to the Role entity.
+func (m *RoleMutation) ClearChildren() {
+	m.clearedchildren = true
+}
+
+// ChildrenCleared reports if the "children" edge to the Role entity was cleared.
+func (m *RoleMutation) ChildrenCleared() bool {
+	return m.clearedchildren
+}
+
+// RemoveChildIDs removes the "children" edge to the Role entity by IDs.
+func (m *RoleMutation) RemoveChildIDs(ids ...uuid.UUID) {
+	if m.removedchildren == nil {
+		m.removedchildren = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.children, ids[i])
+		m.removedchildren[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedChildren returns the removed IDs of the "children" edge to the Role entity.
+func (m *RoleMutation) RemovedChildrenIDs() (ids []uuid.UUID) {
+	for id := range m.removedchildren {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ChildrenIDs returns the "children" edge IDs in the mutation.
+func (m *RoleMutation) ChildrenIDs() (ids []uuid.UUID) {
+	for id := range m.children {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetChildren resets all changes to the "children" edge.
+func (m *RoleMutation) ResetChildren() {
+	m.children = nil
+	m.clearedchildren = false
+	m.removedchildren = nil
+}
+
+// AddParentIDs adds the "parents" edge to the Role entity by ids.
+func (m *RoleMutation) AddParentIDs(ids ...uuid.UUID) {
+	if m.parents == nil {
+		m.parents = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.parents[ids[i]] = struct{}{}
+	}
+}
+
+// ClearParents clears the "parents" edge to the Role entity.
+func (m *RoleMutation) ClearParents() {
+	m.clearedparents = true
+}
+
+// ParentsCleared reports if the "parents" edge to the Role entity was cleared.
+func (m *RoleMutation) ParentsCleared() bool {
+	return m.clearedparents
+}
+
+// RemoveParentIDs removes the "parents" edge to the Role entity by IDs.
+func (m *RoleMutation) RemoveParentIDs(ids ...uuid.UUID) {
+	if m.removedparents == nil {
+		m.removedparents = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.parents, ids[i])
+		m.removedparents[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedParents returns the removed IDs of the "parents" edge to the Role entity.
+func (m *RoleMutation) RemovedParentsIDs() (ids []uuid.UUID) {
+	for id := range m.removedparents {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ParentsIDs returns the "parents" edge IDs in the mutation.
+func (m *RoleMutation) ParentsIDs() (ids []uuid.UUID) {
+	for id := range m.parents {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetParents resets all changes to the "parents" edge.
+func (m *RoleMutation) ResetParents() {
+	m.parents = nil
+	m.clearedparents = false
+	m.removedparents = nil
+}
+
 // Where appends a list predicates to the RoleMutation builder.
 func (m *RoleMutation) Where(ps ...predicate.Role) {
 	m.predicates = append(m.predicates, ps...)
@@ -446,9 +560,15 @@ func (m *RoleMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *RoleMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 3)
 	if m.users != nil {
 		edges = append(edges, role.EdgeUsers)
+	}
+	if m.children != nil {
+		edges = append(edges, role.EdgeChildren)
+	}
+	if m.parents != nil {
+		edges = append(edges, role.EdgeParents)
 	}
 	return edges
 }
@@ -463,15 +583,33 @@ func (m *RoleMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case role.EdgeChildren:
+		ids := make([]ent.Value, 0, len(m.children))
+		for id := range m.children {
+			ids = append(ids, id)
+		}
+		return ids
+	case role.EdgeParents:
+		ids := make([]ent.Value, 0, len(m.parents))
+		for id := range m.parents {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *RoleMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 3)
 	if m.removedusers != nil {
 		edges = append(edges, role.EdgeUsers)
+	}
+	if m.removedchildren != nil {
+		edges = append(edges, role.EdgeChildren)
+	}
+	if m.removedparents != nil {
+		edges = append(edges, role.EdgeParents)
 	}
 	return edges
 }
@@ -486,15 +624,33 @@ func (m *RoleMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case role.EdgeChildren:
+		ids := make([]ent.Value, 0, len(m.removedchildren))
+		for id := range m.removedchildren {
+			ids = append(ids, id)
+		}
+		return ids
+	case role.EdgeParents:
+		ids := make([]ent.Value, 0, len(m.removedparents))
+		for id := range m.removedparents {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *RoleMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 3)
 	if m.clearedusers {
 		edges = append(edges, role.EdgeUsers)
+	}
+	if m.clearedchildren {
+		edges = append(edges, role.EdgeChildren)
+	}
+	if m.clearedparents {
+		edges = append(edges, role.EdgeParents)
 	}
 	return edges
 }
@@ -505,6 +661,10 @@ func (m *RoleMutation) EdgeCleared(name string) bool {
 	switch name {
 	case role.EdgeUsers:
 		return m.clearedusers
+	case role.EdgeChildren:
+		return m.clearedchildren
+	case role.EdgeParents:
+		return m.clearedparents
 	}
 	return false
 }
@@ -523,6 +683,12 @@ func (m *RoleMutation) ResetEdge(name string) error {
 	switch name {
 	case role.EdgeUsers:
 		m.ResetUsers()
+		return nil
+	case role.EdgeChildren:
+		m.ResetChildren()
+		return nil
+	case role.EdgeParents:
+		m.ResetParents()
 		return nil
 	}
 	return fmt.Errorf("unknown Role edge %s", name)

@@ -406,6 +406,62 @@ func HasUsersWith(preds ...predicate.User) predicate.Role {
 	})
 }
 
+// HasChildren applies the HasEdge predicate on the "children" edge.
+func HasChildren() predicate.Role {
+	return predicate.Role(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ChildrenTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, ChildrenTable, ChildrenPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasChildrenWith applies the HasEdge predicate on the "children" edge with a given conditions (other predicates).
+func HasChildrenWith(preds ...predicate.Role) predicate.Role {
+	return predicate.Role(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, ChildrenTable, ChildrenPrimaryKey...),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasParents applies the HasEdge predicate on the "parents" edge.
+func HasParents() predicate.Role {
+	return predicate.Role(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ParentsTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, ParentsTable, ParentsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasParentsWith applies the HasEdge predicate on the "parents" edge with a given conditions (other predicates).
+func HasParentsWith(preds ...predicate.Role) predicate.Role {
+	return predicate.Role(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, ParentsTable, ParentsPrimaryKey...),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Role) predicate.Role {
 	return predicate.Role(func(s *sql.Selector) {

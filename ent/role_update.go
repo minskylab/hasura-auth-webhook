@@ -70,6 +70,36 @@ func (ru *RoleUpdate) AddUsers(u ...*User) *RoleUpdate {
 	return ru.AddUserIDs(ids...)
 }
 
+// AddChildIDs adds the "children" edge to the Role entity by IDs.
+func (ru *RoleUpdate) AddChildIDs(ids ...uuid.UUID) *RoleUpdate {
+	ru.mutation.AddChildIDs(ids...)
+	return ru
+}
+
+// AddChildren adds the "children" edges to the Role entity.
+func (ru *RoleUpdate) AddChildren(r ...*Role) *RoleUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return ru.AddChildIDs(ids...)
+}
+
+// AddParentIDs adds the "parents" edge to the Role entity by IDs.
+func (ru *RoleUpdate) AddParentIDs(ids ...uuid.UUID) *RoleUpdate {
+	ru.mutation.AddParentIDs(ids...)
+	return ru
+}
+
+// AddParents adds the "parents" edges to the Role entity.
+func (ru *RoleUpdate) AddParents(r ...*Role) *RoleUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return ru.AddParentIDs(ids...)
+}
+
 // Mutation returns the RoleMutation object of the builder.
 func (ru *RoleUpdate) Mutation() *RoleMutation {
 	return ru.mutation
@@ -94,6 +124,48 @@ func (ru *RoleUpdate) RemoveUsers(u ...*User) *RoleUpdate {
 		ids[i] = u[i].ID
 	}
 	return ru.RemoveUserIDs(ids...)
+}
+
+// ClearChildren clears all "children" edges to the Role entity.
+func (ru *RoleUpdate) ClearChildren() *RoleUpdate {
+	ru.mutation.ClearChildren()
+	return ru
+}
+
+// RemoveChildIDs removes the "children" edge to Role entities by IDs.
+func (ru *RoleUpdate) RemoveChildIDs(ids ...uuid.UUID) *RoleUpdate {
+	ru.mutation.RemoveChildIDs(ids...)
+	return ru
+}
+
+// RemoveChildren removes "children" edges to Role entities.
+func (ru *RoleUpdate) RemoveChildren(r ...*Role) *RoleUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return ru.RemoveChildIDs(ids...)
+}
+
+// ClearParents clears all "parents" edges to the Role entity.
+func (ru *RoleUpdate) ClearParents() *RoleUpdate {
+	ru.mutation.ClearParents()
+	return ru
+}
+
+// RemoveParentIDs removes the "parents" edge to Role entities by IDs.
+func (ru *RoleUpdate) RemoveParentIDs(ids ...uuid.UUID) *RoleUpdate {
+	ru.mutation.RemoveParentIDs(ids...)
+	return ru
+}
+
+// RemoveParents removes "parents" edges to Role entities.
+func (ru *RoleUpdate) RemoveParents(r ...*Role) *RoleUpdate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return ru.RemoveParentIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -252,6 +324,114 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if ru.mutation.ChildrenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.ChildrenTable,
+			Columns: role.ChildrenPrimaryKey,
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ru.mutation.RemovedChildrenIDs(); len(nodes) > 0 && !ru.mutation.ChildrenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.ChildrenTable,
+			Columns: role.ChildrenPrimaryKey,
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ru.mutation.ChildrenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.ChildrenTable,
+			Columns: role.ChildrenPrimaryKey,
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ru.mutation.ParentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   role.ParentsTable,
+			Columns: role.ParentsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ru.mutation.RemovedParentsIDs(); len(nodes) > 0 && !ru.mutation.ParentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   role.ParentsTable,
+			Columns: role.ParentsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ru.mutation.ParentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   role.ParentsTable,
+			Columns: role.ParentsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, ru.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{role.Label}
@@ -312,6 +492,36 @@ func (ruo *RoleUpdateOne) AddUsers(u ...*User) *RoleUpdateOne {
 	return ruo.AddUserIDs(ids...)
 }
 
+// AddChildIDs adds the "children" edge to the Role entity by IDs.
+func (ruo *RoleUpdateOne) AddChildIDs(ids ...uuid.UUID) *RoleUpdateOne {
+	ruo.mutation.AddChildIDs(ids...)
+	return ruo
+}
+
+// AddChildren adds the "children" edges to the Role entity.
+func (ruo *RoleUpdateOne) AddChildren(r ...*Role) *RoleUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return ruo.AddChildIDs(ids...)
+}
+
+// AddParentIDs adds the "parents" edge to the Role entity by IDs.
+func (ruo *RoleUpdateOne) AddParentIDs(ids ...uuid.UUID) *RoleUpdateOne {
+	ruo.mutation.AddParentIDs(ids...)
+	return ruo
+}
+
+// AddParents adds the "parents" edges to the Role entity.
+func (ruo *RoleUpdateOne) AddParents(r ...*Role) *RoleUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return ruo.AddParentIDs(ids...)
+}
+
 // Mutation returns the RoleMutation object of the builder.
 func (ruo *RoleUpdateOne) Mutation() *RoleMutation {
 	return ruo.mutation
@@ -336,6 +546,48 @@ func (ruo *RoleUpdateOne) RemoveUsers(u ...*User) *RoleUpdateOne {
 		ids[i] = u[i].ID
 	}
 	return ruo.RemoveUserIDs(ids...)
+}
+
+// ClearChildren clears all "children" edges to the Role entity.
+func (ruo *RoleUpdateOne) ClearChildren() *RoleUpdateOne {
+	ruo.mutation.ClearChildren()
+	return ruo
+}
+
+// RemoveChildIDs removes the "children" edge to Role entities by IDs.
+func (ruo *RoleUpdateOne) RemoveChildIDs(ids ...uuid.UUID) *RoleUpdateOne {
+	ruo.mutation.RemoveChildIDs(ids...)
+	return ruo
+}
+
+// RemoveChildren removes "children" edges to Role entities.
+func (ruo *RoleUpdateOne) RemoveChildren(r ...*Role) *RoleUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return ruo.RemoveChildIDs(ids...)
+}
+
+// ClearParents clears all "parents" edges to the Role entity.
+func (ruo *RoleUpdateOne) ClearParents() *RoleUpdateOne {
+	ruo.mutation.ClearParents()
+	return ruo
+}
+
+// RemoveParentIDs removes the "parents" edge to Role entities by IDs.
+func (ruo *RoleUpdateOne) RemoveParentIDs(ids ...uuid.UUID) *RoleUpdateOne {
+	ruo.mutation.RemoveParentIDs(ids...)
+	return ruo
+}
+
+// RemoveParents removes "parents" edges to Role entities.
+func (ruo *RoleUpdateOne) RemoveParents(r ...*Role) *RoleUpdateOne {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return ruo.RemoveParentIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -510,6 +762,114 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
 					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ruo.mutation.ChildrenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.ChildrenTable,
+			Columns: role.ChildrenPrimaryKey,
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ruo.mutation.RemovedChildrenIDs(); len(nodes) > 0 && !ruo.mutation.ChildrenCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.ChildrenTable,
+			Columns: role.ChildrenPrimaryKey,
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ruo.mutation.ChildrenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.ChildrenTable,
+			Columns: role.ChildrenPrimaryKey,
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if ruo.mutation.ParentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   role.ParentsTable,
+			Columns: role.ParentsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ruo.mutation.RemovedParentsIDs(); len(nodes) > 0 && !ruo.mutation.ParentsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   role.ParentsTable,
+			Columns: role.ParentsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := ruo.mutation.ParentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   role.ParentsTable,
+			Columns: role.ParentsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
 				},
 			},
 		}

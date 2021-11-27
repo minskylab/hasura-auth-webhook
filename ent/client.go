@@ -231,6 +231,38 @@ func (c *RoleClient) QueryUsers(r *Role) *UserQuery {
 	return query
 }
 
+// QueryChildren queries the children edge of a Role.
+func (c *RoleClient) QueryChildren(r *Role) *RoleQuery {
+	query := &RoleQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(role.Table, role.FieldID, id),
+			sqlgraph.To(role.Table, role.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, role.ChildrenTable, role.ChildrenPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryParents queries the parents edge of a Role.
+func (c *RoleClient) QueryParents(r *Role) *RoleQuery {
+	query := &RoleQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := r.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(role.Table, role.FieldID, id),
+			sqlgraph.To(role.Table, role.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, role.ParentsTable, role.ParentsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(r.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *RoleClient) Hooks() []Hook {
 	return c.hooks.Role
