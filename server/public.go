@@ -66,8 +66,8 @@ func (p *PublicServer) Port() int {
 }
 
 func (p *PublicServer) Register(ctx *fiber.Ctx) error {
-	var req *services.SignUpRequest
-	if err := ctx.BodyParser(req); err != nil {
+	var req services.SignUpRequest
+	if err := ctx.BodyParser(&req); err != nil {
 		return errorResponse(ctx.Status(400), errors.Wrap(err, "error on parse body"))
 	}
 
