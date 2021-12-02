@@ -81,7 +81,7 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 	if !rol.Public {
 		authorizationHeader := ctx.Get(authorizationHeaderName)
 
-		me, err := helpers.ValidateAndGetUserDataFromToken(p.Client, p.Auth, ctx.Context(), authorizationHeader, bearerTokenWord)
+    me, err := helpers.ValidateAndGetUserDataFromToken(p.Client, p.Auth, ctx.Context(), authorizationHeader, bearerTokenWord)
 		if err != nil {
 			return errorResponse(ctx.Status(401), err)
 		}
