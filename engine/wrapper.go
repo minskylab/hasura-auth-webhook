@@ -32,6 +32,10 @@ func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, conf *c
 			Public: true,
 		}
 
+		for _, r := range conf.Roles {
+			adminRole.Children = append(adminRole.Children, r.Name)
+		}
+
 		mapEntityRoles := make(map[string]*ent.Role)
 
 		allRoles := append(conf.Roles, adminRole, anonymousRole)

@@ -68,8 +68,8 @@ func (p *PublicServer) Port() int {
 }
 
 func (p *PublicServer) Register(ctx *fiber.Ctx) error {
-	var req *services.SignUpRequest
-	if err := ctx.BodyParser(req); err != nil {
+	var req services.SignUpRequest
+	if err := ctx.BodyParser(&req); err != nil {
 		return errorResponse(ctx.Status(400), errors.Wrap(err, "error on parse body"))
 	}
 
@@ -78,7 +78,7 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(401), err)
 	}
 
-	if rol.Public == false {
+	if !rol.Public {
 		authorizationHeader := ctx.Get(authorizationHeaderName)
 
 		me, err := helpers.ValidateAndGetUserDataFromToken(p.Client, p.Auth, ctx.Context(), authorizationHeader, bearerTokenWord)
@@ -86,32 +86,17 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 			return errorResponse(ctx.Status(401), err)
 		}
 
-		myRoles, err := me.QueryRoles().All(ctx.Context())
+		myRoles := me.Edges.Roles
+
+		result, err := searchRolesInParents(ctx.Context(), myRoles, rol)
 		if err != nil {
-			return errorResponse(ctx.Status(401), errors.Wrap(err, "user hasn't valid roles"))
+			return errorResponse(ctx.Status(401), err)
+		}
+
+		if !result {
+			return errorResponse(ctx.Status(403), errors.New("user hasn't enough permissions"))
 		}
 	}
-
-	// TODO: role allowed to register new users
-	// check header, get role from token
-	//authorizationHeader := ctx.Get(authorizationHeaderName)
-	//
-	//me, err := helpers.ValidateAndGetUserDataFromToken(p.Client, p.Auth, ctx.Context(), authorizationHeader, bearerTokenWord)
-	//if err != nil {
-	//	return errorResponse(ctx.Status(401), err)
-	//}
-
-	//myRoles, err := me.QueryRoles().All(ctx.Context())
-	//if err != nil {
-	//	return errorResponse(ctx.Status(401), errors.Wrap(err, "user hasn't valid roles"))
-	//}
-
-	// valid roles to this endpoint := []
-	// if role not in valid_roles
-	// error 403
-	//if !roleInRoles("admin", myRoles) {
-	//	return errorResponse(ctx.Status(403), errors.Wrap(err, "user hasn't enough permissions"))
-	//}
 
 	if ok := helpers.ValidateEmail(req.Email); !ok {
 		return errorResponse(ctx.Status(400), errors.New("wrong input data"))

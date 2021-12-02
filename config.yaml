@@ -31,6 +31,7 @@ roles:
   - name: physitian
     child: patient
   - name: patient
+    public: true
     parents:
       - doctor
       - physitian

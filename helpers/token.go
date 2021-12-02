@@ -33,7 +33,7 @@ func ValidateAndGetUserDataFromToken(client *ent.Client, auth *auth.AuthManager,
 		return nil, errors.Wrap(err, "invalid access token")
 	}
 
-	me, err := client.User.Query().Where(user.ID(uid)).First(ctx)
+	me, err := client.User.Query().WithRoles().Where(user.ID(uid)).First(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "user not found or not exist")
 	}
