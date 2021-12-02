@@ -14,6 +14,7 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "name", Type: field.TypeString, Unique: true},
+		{Name: "public", Type: field.TypeBool},
 	}
 	// RolesTable holds the schema information for the "roles" table.
 	RolesTable = &schema.Table{
@@ -35,6 +36,31 @@ var (
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
+	}
+	// RoleChildrenColumns holds the columns for the "role_children" table.
+	RoleChildrenColumns = []*schema.Column{
+		{Name: "role_id", Type: field.TypeUUID},
+		{Name: "parent_id", Type: field.TypeUUID},
+	}
+	// RoleChildrenTable holds the schema information for the "role_children" table.
+	RoleChildrenTable = &schema.Table{
+		Name:       "role_children",
+		Columns:    RoleChildrenColumns,
+		PrimaryKey: []*schema.Column{RoleChildrenColumns[0], RoleChildrenColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "role_children_role_id",
+				Columns:    []*schema.Column{RoleChildrenColumns[0]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "role_children_parent_id",
+				Columns:    []*schema.Column{RoleChildrenColumns[1]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
 	}
 	// UserRolesColumns holds the columns for the "user_roles" table.
 	UserRolesColumns = []*schema.Column{
@@ -65,11 +91,14 @@ var (
 	Tables = []*schema.Table{
 		RolesTable,
 		UsersTable,
+		RoleChildrenTable,
 		UserRolesTable,
 	}
 )
 
 func init() {
+	RoleChildrenTable.ForeignKeys[0].RefTable = RolesTable
+	RoleChildrenTable.ForeignKeys[1].RefTable = RolesTable
 	UserRolesTable.ForeignKeys[0].RefTable = UsersTable
 	UserRolesTable.ForeignKeys[1].RefTable = RolesTable
 }
