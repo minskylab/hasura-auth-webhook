@@ -114,6 +114,7 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 	u, err := p.Client.User.Create().
 		SetEmail(req.Email).
 		SetHashedPassword(hashed).
+		AddRoles(rol).
 		Save(ctx.Context())
 	if err != nil {
 		return errorResponse(ctx.Status(500), errors.New("user could not be created"))

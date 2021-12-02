@@ -2,9 +2,7 @@ package engine
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/minskylab/hasura-auth-webhook/ent/role"
 
 	"github.com/minskylab/hasura-auth-webhook/auth"
@@ -42,11 +40,25 @@ func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, conf *c
 
 		allRoles := append(conf.Roles, adminRole, anonymousRole)
 
+		{
+			mapRoles := make(map[string]*config.Role)
+
+			for i := 0; i < len(allRoles); i++ {
+				mapRoles[allRoles[i].Name] = &allRoles[i]
+			}
+
+			for _, v := range mapRoles {
+				for _, c := range v.Children {
+					if !contains(mapRoles[c].Parents, v.Name) {
+						mapRoles[c].Parents = append(mapRoles[c].Parents, v.Name)
+					}
+				}
+			}
+		}
+
 		for _, r := range allRoles {
 			rolEntity, err := client.Role.Create().SetName(r.Name).SetPublic(r.Public).Save(context.Background())
 			if err != nil {
-				// log.Warnf("failed creating role: %v", err)
-				// continue
 				rolEntity, err = client.Role.Query().Where(role.Name(r.Name)).First(context.Background())
 				if err != nil {
 					log.Warnf("failed creating role: %v", err)
@@ -68,13 +80,11 @@ func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, conf *c
 					log.Warnf("failed creating role: %v", err)
 				}
 			}
-
-			// spew.Dump(rolEntity)
 		}
 
 		for _, r := range allRoles {
-			parents := []*ent.Role{}
-			children := []*ent.Role{}
+			var parents []*ent.Role
+			var children []*ent.Role
 
 			rolEntity := mapEntityRoles[r.Name]
 
@@ -108,31 +118,14 @@ func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, conf *c
 				}
 			}
 
-			spew.Dump(rolEntity.Name)
-
-			spew.Dump("PARENTS: ", parents)
-			spew.Dump("CHILDREN: ", children)
-			fmt.Println()
-
-			// rolEntity, err := rolEntity.Update().AddParents(parents...).AddChildren(children...).Save(context.Background())
-			//rolEntity, err := rolEntity.Update().AddParents(parents...).Save(context.Background())
-			//if err != nil {
-			//	log.Warnf("failed updating roles: %v", err)
-			//}
-
-			_, err := rolEntity.Update().AddChildren(children...).Save(context.Background())
+			rolEntity, err := rolEntity.Update().AddParents(parents...).Save(context.Background())
 			if err != nil {
 				log.Warnf("failed updating roles: %v", err)
 			}
 
 			if rolEntity != nil {
-				rolEntity, _ = client.Role.Query().WithParents().WithChildren().Where(role.ID(rolEntity.ID)).Only(context.Background())
-				spew.Dump(rolEntity)
-				spew.Dump(rolEntity.Edges)
 				mapEntityRoles[r.Name] = rolEntity
 			}
-
-			fmt.Println("----------------------------------\n")
 		}
 	}
 
@@ -143,4 +136,13 @@ func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, conf *c
 	}
 
 	return engine, nil
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
