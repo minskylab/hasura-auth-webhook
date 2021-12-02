@@ -24,6 +24,8 @@ type Role struct {
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Public holds the value of the "public" field.
+	Public bool `json:"public,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the RoleQuery when eager-loading is set.
 	Edges RoleEdges `json:"edges"`
@@ -74,6 +76,8 @@ func (*Role) scanValues(columns []string) ([]interface{}, error) {
 	values := make([]interface{}, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case role.FieldPublic:
+			values[i] = new(sql.NullBool)
 		case role.FieldName:
 			values[i] = new(sql.NullString)
 		case role.FieldCreatedAt, role.FieldUpdatedAt:
@@ -118,6 +122,12 @@ func (r *Role) assignValues(columns []string, values []interface{}) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				r.Name = value.String
+			}
+		case role.FieldPublic:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field public", values[i])
+			} else if value.Valid {
+				r.Public = value.Bool
 			}
 		}
 	}
@@ -168,6 +178,8 @@ func (r *Role) String() string {
 	builder.WriteString(r.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", name=")
 	builder.WriteString(r.Name)
+	builder.WriteString(", public=")
+	builder.WriteString(fmt.Sprintf("%v", r.Public))
 	builder.WriteByte(')')
 	return builder.String()
 }

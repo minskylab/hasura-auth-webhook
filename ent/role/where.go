@@ -115,6 +115,13 @@ func Name(v string) predicate.Role {
 	})
 }
 
+// Public applies equality check predicate on the "public" field. It's identical to PublicEQ.
+func Public(v bool) predicate.Role {
+	return predicate.Role(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPublic), v))
+	})
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.Role {
 	return predicate.Role(func(s *sql.Selector) {
@@ -375,6 +382,20 @@ func NameEqualFold(v string) predicate.Role {
 func NameContainsFold(v string) predicate.Role {
 	return predicate.Role(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldName), v))
+	})
+}
+
+// PublicEQ applies the EQ predicate on the "public" field.
+func PublicEQ(v bool) predicate.Role {
+	return predicate.Role(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldPublic), v))
+	})
+}
+
+// PublicNEQ applies the NEQ predicate on the "public" field.
+func PublicNEQ(v bool) predicate.Role {
+	return predicate.Role(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldPublic), v))
 	})
 }
 

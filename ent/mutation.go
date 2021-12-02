@@ -38,6 +38,7 @@ type RoleMutation struct {
 	created_at      *time.Time
 	updated_at      *time.Time
 	name            *string
+	public          *bool
 	clearedFields   map[string]struct{}
 	users           map[uuid.UUID]struct{}
 	removedusers    map[uuid.UUID]struct{}
@@ -246,6 +247,42 @@ func (m *RoleMutation) ResetName() {
 	m.name = nil
 }
 
+// SetPublic sets the "public" field.
+func (m *RoleMutation) SetPublic(b bool) {
+	m.public = &b
+}
+
+// Public returns the value of the "public" field in the mutation.
+func (m *RoleMutation) Public() (r bool, exists bool) {
+	v := m.public
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPublic returns the old "public" field's value of the Role entity.
+// If the Role object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *RoleMutation) OldPublic(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, fmt.Errorf("OldPublic is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, fmt.Errorf("OldPublic requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPublic: %w", err)
+	}
+	return oldValue.Public, nil
+}
+
+// ResetPublic resets all changes to the "public" field.
+func (m *RoleMutation) ResetPublic() {
+	m.public = nil
+}
+
 // AddUserIDs adds the "users" edge to the User entity by ids.
 func (m *RoleMutation) AddUserIDs(ids ...uuid.UUID) {
 	if m.users == nil {
@@ -427,7 +464,7 @@ func (m *RoleMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *RoleMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 4)
 	if m.created_at != nil {
 		fields = append(fields, role.FieldCreatedAt)
 	}
@@ -436,6 +473,9 @@ func (m *RoleMutation) Fields() []string {
 	}
 	if m.name != nil {
 		fields = append(fields, role.FieldName)
+	}
+	if m.public != nil {
+		fields = append(fields, role.FieldPublic)
 	}
 	return fields
 }
@@ -451,6 +491,8 @@ func (m *RoleMutation) Field(name string) (ent.Value, bool) {
 		return m.UpdatedAt()
 	case role.FieldName:
 		return m.Name()
+	case role.FieldPublic:
+		return m.Public()
 	}
 	return nil, false
 }
@@ -466,6 +508,8 @@ func (m *RoleMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldUpdatedAt(ctx)
 	case role.FieldName:
 		return m.OldName(ctx)
+	case role.FieldPublic:
+		return m.OldPublic(ctx)
 	}
 	return nil, fmt.Errorf("unknown Role field %s", name)
 }
@@ -495,6 +539,13 @@ func (m *RoleMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetName(v)
+		return nil
+	case role.FieldPublic:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPublic(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Role field %s", name)
@@ -553,6 +604,9 @@ func (m *RoleMutation) ResetField(name string) error {
 		return nil
 	case role.FieldName:
 		m.ResetName()
+		return nil
+	case role.FieldPublic:
+		m.ResetPublic()
 		return nil
 	}
 	return fmt.Errorf("unknown Role field %s", name)

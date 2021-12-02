@@ -26,3 +26,6 @@ func roleInRoles(a string, list []*ent.Role) bool {
 	}
 	return false
 }
+
+func searchInParents() bool {
+}

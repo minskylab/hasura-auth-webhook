@@ -51,13 +51,13 @@ type Anonymous struct {
 }
 
 type Role struct {
-	Name  string `yaml:"name"`
-	Parent string `yaml:"parent,omitempty"`
-	Parents []string `yaml:"parents,omitempty"`
-	Child string `yaml:"child,omitempty"`
-	Children string `yaml:"children,omitempty"`
-	Users []User `yaml:"users,flow,omitempty"`
-	Public bool `yaml:"public,omitempty"`
+	Name     string   `yaml:"name"`
+	Parent   *string  `yaml:"parent,omitempty"`
+	Parents  []string `yaml:"parents,omitempty"`
+	Child    *string  `yaml:"child,omitempty"`
+	Children []string `yaml:"children,omitempty"`
+	Users    []User   `yaml:"users,flow,omitempty"`
+	Public   bool     `yaml:"public,omitempty"`
 }
 
 type User struct {

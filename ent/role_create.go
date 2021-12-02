@@ -56,6 +56,12 @@ func (rc *RoleCreate) SetName(s string) *RoleCreate {
 	return rc
 }
 
+// SetPublic sets the "public" field.
+func (rc *RoleCreate) SetPublic(b bool) *RoleCreate {
+	rc.mutation.SetPublic(b)
+	return rc
+}
+
 // SetID sets the "id" field.
 func (rc *RoleCreate) SetID(u uuid.UUID) *RoleCreate {
 	rc.mutation.SetID(u)
@@ -203,6 +209,9 @@ func (rc *RoleCreate) check() error {
 	if _, ok := rc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "name"`)}
 	}
+	if _, ok := rc.mutation.Public(); !ok {
+		return &ValidationError{Name: "public", err: errors.New(`ent: missing required field "public"`)}
+	}
 	return nil
 }
 
@@ -258,6 +267,14 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 			Column: role.FieldName,
 		})
 		_node.Name = value
+	}
+	if value, ok := rc.mutation.Public(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: role.FieldPublic,
+		})
+		_node.Public = value
 	}
 	if nodes := rc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/minskylab/hasura-auth-webhook/ent/role"
+
 	"github.com/golang-jwt/jwt"
 
 	"github.com/gofiber/fiber/v2"
@@ -71,45 +73,45 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(400), errors.Wrap(err, "error on parse body"))
 	}
 
+	rol, err := p.Client.Role.Query().Where(role.Name(req.Role)).Only(ctx.Context())
+	if err != nil {
+		return errorResponse(ctx.Status(401), err)
+	}
+
+	if rol.Public == false {
+		authorizationHeader := ctx.Get(authorizationHeaderName)
+
+		me, err := helpers.ValidateAndGetUserDataFromToken(p.Client, p.Auth, ctx.Context(), authorizationHeader, bearerTokenWord)
+		if err != nil {
+			return errorResponse(ctx.Status(401), err)
+		}
+
+		myRoles, err := me.QueryRoles().All(ctx.Context())
+		if err != nil {
+			return errorResponse(ctx.Status(401), errors.Wrap(err, "user hasn't valid roles"))
+		}
+	}
+
 	// TODO: role allowed to register new users
 	// check header, get role from token
-	authorizationHeader := ctx.Get(authorizationHeaderName)
-	withBearerToken := strings.HasPrefix(authorizationHeader, bearerTokenWord)
+	//authorizationHeader := ctx.Get(authorizationHeaderName)
+	//
+	//me, err := helpers.ValidateAndGetUserDataFromToken(p.Client, p.Auth, ctx.Context(), authorizationHeader, bearerTokenWord)
+	//if err != nil {
+	//	return errorResponse(ctx.Status(401), err)
+	//}
 
-	if !withBearerToken {
-		return errorResponse(ctx.Status(401), errors.New("header not found"))
-	}
-
-	receivedAccessToken := strings.TrimSpace(strings.ReplaceAll(authorizationHeader, bearerTokenWord, ""))
-
-	// validate token and get raw data
-	payload, err := p.Auth.ValidateAccessToken(receivedAccessToken)
-	if err != nil {
-		return errorResponse(ctx.Status(401), errors.Wrap(err, "invalid access token"))
-	}
-
-	// find user and roles by its userID
-	uid, err := uuid.FromString(payload.UserID)
-	if err != nil {
-		return errorResponse(ctx.Status(401), errors.Wrap(err, "invalid access token"))
-	}
-
-	me, err := p.Client.User.Query().Where(user.ID(uid)).First(ctx.Context())
-	if err != nil {
-		return errorResponse(ctx.Status(401), errors.Wrap(err, "user not found or not exist"))
-	}
-
-	myRoles, err := me.QueryRoles().All(ctx.Context())
-	if err != nil {
-		return errorResponse(ctx.Status(401), errors.Wrap(err, "user hasn't valid roles"))
-	}
+	//myRoles, err := me.QueryRoles().All(ctx.Context())
+	//if err != nil {
+	//	return errorResponse(ctx.Status(401), errors.Wrap(err, "user hasn't valid roles"))
+	//}
 
 	// valid roles to this endpoint := []
 	// if role not in valid_roles
 	// error 403
-	if !roleInRoles("admin", myRoles) {
-		return errorResponse(ctx.Status(403), errors.Wrap(err, "user hasn't enough permissions"))
-	}
+	//if !roleInRoles("admin", myRoles) {
+	//	return errorResponse(ctx.Status(403), errors.Wrap(err, "user hasn't enough permissions"))
+	//}
 
 	if ok := helpers.ValidateEmail(req.Email); !ok {
 		return errorResponse(ctx.Status(400), errors.New("wrong input data"))

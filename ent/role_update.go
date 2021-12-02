@@ -55,6 +55,12 @@ func (ru *RoleUpdate) SetName(s string) *RoleUpdate {
 	return ru
 }
 
+// SetPublic sets the "public" field.
+func (ru *RoleUpdate) SetPublic(b bool) *RoleUpdate {
+	ru.mutation.SetPublic(b)
+	return ru
+}
+
 // AddUserIDs adds the "users" edge to the User entity by IDs.
 func (ru *RoleUpdate) AddUserIDs(ids ...uuid.UUID) *RoleUpdate {
 	ru.mutation.AddUserIDs(ids...)
@@ -270,6 +276,13 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: role.FieldName,
 		})
 	}
+	if value, ok := ru.mutation.Public(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: role.FieldPublic,
+		})
+	}
 	if ru.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -474,6 +487,12 @@ func (ruo *RoleUpdateOne) SetUpdatedAt(t time.Time) *RoleUpdateOne {
 // SetName sets the "name" field.
 func (ruo *RoleUpdateOne) SetName(s string) *RoleUpdateOne {
 	ruo.mutation.SetName(s)
+	return ruo
+}
+
+// SetPublic sets the "public" field.
+func (ruo *RoleUpdateOne) SetPublic(b bool) *RoleUpdateOne {
+	ruo.mutation.SetPublic(b)
 	return ruo
 }
 
@@ -714,6 +733,13 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: role.FieldName,
+		})
+	}
+	if value, ok := ruo.mutation.Public(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: role.FieldPublic,
 		})
 	}
 	if ruo.mutation.UsersCleared() {
