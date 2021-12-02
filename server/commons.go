@@ -50,7 +50,15 @@ func searchRolesInParents(ctx context.Context, myRoles []*ent.Role, parentSearch
 
 	result := false
 	for _, p := range parentRoles {
+		p := p
 		go func(c chan boolAndError) {
+			if parentSearchRol.ID == p.ID {
+				c <- boolAndError{
+					result: false,
+					err:    err,
+				}
+				return
+			}
 			r, err := searchRolesInParents(ctx, myRoles, p)
 			res := boolAndError{
 				result: r,

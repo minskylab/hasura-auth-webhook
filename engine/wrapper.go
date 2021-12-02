@@ -2,7 +2,9 @@ package engine
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/minskylab/hasura-auth-webhook/ent/role"
 
 	"github.com/minskylab/hasura-auth-webhook/auth"
@@ -65,10 +67,9 @@ func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, conf *c
 				if err != nil {
 					log.Warnf("failed creating role: %v", err)
 				}
-
-				// user
 			}
 
+			// spew.Dump(rolEntity)
 		}
 
 		for _, r := range allRoles {
@@ -107,14 +108,31 @@ func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, conf *c
 				}
 			}
 
-			rolEntity, err := rolEntity.Update().AddParents(parents...).AddChildren(children...).Save(context.Background())
+			spew.Dump(rolEntity.Name)
+
+			spew.Dump("PARENTS: ", parents)
+			spew.Dump("CHILDREN: ", children)
+			fmt.Println()
+
+			// rolEntity, err := rolEntity.Update().AddParents(parents...).AddChildren(children...).Save(context.Background())
+			//rolEntity, err := rolEntity.Update().AddParents(parents...).Save(context.Background())
+			//if err != nil {
+			//	log.Warnf("failed updating roles: %v", err)
+			//}
+
+			_, err := rolEntity.Update().AddChildren(children...).Save(context.Background())
 			if err != nil {
 				log.Warnf("failed updating roles: %v", err)
 			}
 
 			if rolEntity != nil {
+				rolEntity, _ = client.Role.Query().WithParents().WithChildren().Where(role.ID(rolEntity.ID)).Only(context.Background())
+				spew.Dump(rolEntity)
+				spew.Dump(rolEntity.Edges)
 				mapEntityRoles[r.Name] = rolEntity
 			}
+
+			fmt.Println("----------------------------------\n")
 		}
 	}
 
