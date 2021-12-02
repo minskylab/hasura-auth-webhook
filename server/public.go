@@ -129,7 +129,7 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 	// if role not in valid_roles
 	// error 403
 	if !roleInRoles("admin", myRoles) {
-		return errorResponse(ctx.Status(403), errors.Wrap(err, "user hasn't enough permissions"))
+		return errorResponse(ctx.Status(403), errors.New("user hasn't enough permissions"))
 	}
 
 	spew.Dump(req)
