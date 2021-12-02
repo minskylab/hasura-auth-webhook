@@ -20,7 +20,7 @@ func errorResponse(ctx *fiber.Ctx, err error) error {
 
 func roleInRoles(a string, list []*ent.Role) bool {
 	for _, b := range list {
-		if b.Name == a {
+		if b != nil && b.Name == a {
 			return true
 		}
 	}
