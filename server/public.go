@@ -121,7 +121,7 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 
 	hashed, err := helpers.HashPassword(req.Password)
 	if err != nil {
-		return errorResponse(ctx.Status(500), errors.New("user could not be created"))
+		return errorResponse(ctx.Status(500), errors.Wrap(err, "user could not be created"))
 	}
 
 	u, err := p.Client.User.Create().
@@ -129,7 +129,7 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 		SetHashedPassword(hashed).
 		Save(ctx.Context())
 	if err != nil {
-		return errorResponse(ctx.Status(500), errors.New("user could not be created"))
+		return errorResponse(ctx.Status(500), errors.Wrap(err, "user could not be created"))
 	}
 
 
