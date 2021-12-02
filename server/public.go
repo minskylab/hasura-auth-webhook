@@ -1,6 +1,8 @@
 package server
 
 import (
+	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"net/mail"
 	"strings"
 	"time"
@@ -71,6 +73,10 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(400), errors.Wrap(err, "error on parse body"))
 	}
 
+	lines := func() {
+		fmt.Println("\n------------------------------------------------------------------------------")
+	}
+
 	// TODO: role allowed to register new users
 	// check header, get role from token
 	authorizationHeader := ctx.Get(authorizationHeaderName)
@@ -82,11 +88,17 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 
 	receivedAccessToken := strings.TrimSpace(strings.ReplaceAll(authorizationHeader, bearerTokenWord, ""))
 
+	spew.Dump(receivedAccessToken)
+	lines()
+
 	// validate token and get raw data
 	payload, err := p.Auth.ValidateAccessToken(receivedAccessToken)
 	if err != nil {
 		return errorResponse(ctx.Status(401), errors.Wrap(err, "invalid access token"))
 	}
+
+	spew.Dump(payload)
+	lines()
 
 	// find user and roles by its userID
 	uid, err := uuid.FromString(payload.UserID)
@@ -94,15 +106,24 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(401), errors.Wrap(err, "invalid access token"))
 	}
 
+	spew.Dump(uid)
+	lines()
+
 	me, err := p.Client.User.Query().Where(user.ID(uid)).First(ctx.Context())
 	if err != nil {
 		return errorResponse(ctx.Status(401), errors.Wrap(err, "user not found or not exist"))
 	}
 
+	spew.Dump(me)
+	lines()
+
 	myRoles, err := me.QueryRoles().All(ctx.Context())
 	if err != nil {
 		return errorResponse(ctx.Status(401), errors.Wrap(err, "user hasn't valid roles"))
 	}
+
+	spew.Dump(myRoles)
+	lines()
 
 	// valid roles to this endpoint := []
 	// if role not in valid_roles
@@ -110,6 +131,9 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 	if !roleInRoles("admin", myRoles) {
 		return errorResponse(ctx.Status(403), errors.Wrap(err, "user hasn't enough permissions"))
 	}
+
+	spew.Dump(req)
+	lines()
 
 	if ok := helpers.ValidateEmail(req.Email); !ok {
 		return errorResponse(ctx.Status(400), errors.New("wrong input data"))
@@ -124,6 +148,9 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(500), errors.New("user could not be created"))
 	}
 
+	spew.Dump(hashed)
+	lines()
+
 	u, err := p.Client.User.Create().
 		SetEmail(req.Email).
 		SetHashedPassword(hashed).
@@ -132,9 +159,15 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(500), errors.New("user could not be created"))
 	}
 
+	spew.Dump(u)
+	lines()
+
 	res := services.SignUpResponse{
 		UserID: u.ID.String(),
 	}
+
+	spew.Dump(res)
+	lines()
 
 	return ctx.Status(201).JSON(res)
 }
