@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/minskylab/hasura-auth-webhook/ent/role"
 
 	"github.com/golang-jwt/jwt"
@@ -73,10 +74,13 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(400), errors.Wrap(err, "error on parse body"))
 	}
 
+	spew.Dump(req.Role)
 	rol, err := p.Client.Role.Query().Where(role.Name(req.Role)).Only(ctx.Context())
 	if err != nil {
 		return errorResponse(ctx.Status(401), err)
 	}
+
+	spew.Dump(rol)
 
 	if !rol.Public {
 		authorizationHeader := ctx.Get(authorizationHeaderName)
@@ -119,7 +123,7 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 	if err != nil {
 		return errorResponse(ctx.Status(500), errors.Wrap(err, "user could not be created"))
 	}
-
+	spew.Dump(u)
 
 	res := services.SignUpResponse{
 		UserID: u.ID.String(),
