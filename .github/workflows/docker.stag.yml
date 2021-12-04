@@ -3,7 +3,7 @@ name: Push to docker
 on:
   push:
     branches:
-      - "main"
+      - "dev"
 
 jobs:
   docker:
@@ -33,5 +33,4 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_REPO }}:${{ github.sha }}
-            ${{ env.DOCKER_REPO }}:stable
-            ${{ env.DOCKER_REPO }}:latest
+            ${{ env.DOCKER_REPO }}:dev
