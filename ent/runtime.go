@@ -27,6 +27,10 @@ func init() {
 	role.DefaultUpdatedAt = roleDescUpdatedAt.Default.(func() time.Time)
 	// role.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
 	role.UpdateDefaultUpdatedAt = roleDescUpdatedAt.UpdateDefault.(func() time.Time)
+	// roleDescPublic is the schema descriptor for public field.
+	roleDescPublic := roleFields[4].Descriptor()
+	// role.DefaultPublic holds the default value on creation for the public field.
+	role.DefaultPublic = roleDescPublic.Default.(bool)
 	// roleDescID is the schema descriptor for id field.
 	roleDescID := roleFields[0].Descriptor()
 	// role.DefaultID holds the default value on creation for the id field.

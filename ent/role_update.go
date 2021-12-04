@@ -61,6 +61,14 @@ func (ru *RoleUpdate) SetPublic(b bool) *RoleUpdate {
 	return ru
 }
 
+// SetNillablePublic sets the "public" field if the given value is not nil.
+func (ru *RoleUpdate) SetNillablePublic(b *bool) *RoleUpdate {
+	if b != nil {
+		ru.SetPublic(*b)
+	}
+	return ru
+}
+
 // AddUserIDs adds the "users" edge to the User entity by IDs.
 func (ru *RoleUpdate) AddUserIDs(ids ...uuid.UUID) *RoleUpdate {
 	ru.mutation.AddUserIDs(ids...)
@@ -493,6 +501,14 @@ func (ruo *RoleUpdateOne) SetName(s string) *RoleUpdateOne {
 // SetPublic sets the "public" field.
 func (ruo *RoleUpdateOne) SetPublic(b bool) *RoleUpdateOne {
 	ruo.mutation.SetPublic(b)
+	return ruo
+}
+
+// SetNillablePublic sets the "public" field if the given value is not nil.
+func (ruo *RoleUpdateOne) SetNillablePublic(b *bool) *RoleUpdateOne {
+	if b != nil {
+		ruo.SetPublic(*b)
+	}
 	return ruo
 }
 

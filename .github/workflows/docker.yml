@@ -11,6 +11,9 @@ jobs:
       DOCKER_REPO: minskylab/hasura-auth-webhook
     runs-on: ubuntu-20.04
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -30,4 +33,5 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_REPO }}:${{ github.sha }}
+            ${{ env.DOCKER_REPO }}:stable
             ${{ env.DOCKER_REPO }}:latest

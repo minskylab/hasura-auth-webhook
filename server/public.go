@@ -120,7 +120,6 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(500), errors.Wrap(err, "user could not be created"))
 	}
 
-
 	res := services.SignUpResponse{
 		UserID: u.ID.String(),
 	}
