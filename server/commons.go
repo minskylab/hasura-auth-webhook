@@ -41,7 +41,7 @@ func searchRolesInParents(ctx context.Context, myRoles []*ent.Role, parentSearch
 	}
 
 	for _, p := range parentRoles {
-		if roleInRoles(p.Name, myRoles) {
+		if roleInRoles(myRoles, p.Name) {
 			return true, nil
 		}
 	}
