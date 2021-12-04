@@ -56,6 +56,12 @@ func (rc *RoleCreate) SetName(s string) *RoleCreate {
 	return rc
 }
 
+// SetPublic sets the "public" field.
+func (rc *RoleCreate) SetPublic(b bool) *RoleCreate {
+	rc.mutation.SetPublic(b)
+	return rc
+}
+
 // SetID sets the "id" field.
 func (rc *RoleCreate) SetID(u uuid.UUID) *RoleCreate {
 	rc.mutation.SetID(u)
@@ -75,6 +81,36 @@ func (rc *RoleCreate) AddUsers(u ...*User) *RoleCreate {
 		ids[i] = u[i].ID
 	}
 	return rc.AddUserIDs(ids...)
+}
+
+// AddChildIDs adds the "children" edge to the Role entity by IDs.
+func (rc *RoleCreate) AddChildIDs(ids ...uuid.UUID) *RoleCreate {
+	rc.mutation.AddChildIDs(ids...)
+	return rc
+}
+
+// AddChildren adds the "children" edges to the Role entity.
+func (rc *RoleCreate) AddChildren(r ...*Role) *RoleCreate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return rc.AddChildIDs(ids...)
+}
+
+// AddParentIDs adds the "parents" edge to the Role entity by IDs.
+func (rc *RoleCreate) AddParentIDs(ids ...uuid.UUID) *RoleCreate {
+	rc.mutation.AddParentIDs(ids...)
+	return rc
+}
+
+// AddParents adds the "parents" edges to the Role entity.
+func (rc *RoleCreate) AddParents(r ...*Role) *RoleCreate {
+	ids := make([]uuid.UUID, len(r))
+	for i := range r {
+		ids[i] = r[i].ID
+	}
+	return rc.AddParentIDs(ids...)
 }
 
 // Mutation returns the RoleMutation object of the builder.
@@ -173,6 +209,9 @@ func (rc *RoleCreate) check() error {
 	if _, ok := rc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "name"`)}
 	}
+	if _, ok := rc.mutation.Public(); !ok {
+		return &ValidationError{Name: "public", err: errors.New(`ent: missing required field "public"`)}
+	}
 	return nil
 }
 
@@ -229,6 +268,14 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		})
 		_node.Name = value
 	}
+	if value, ok := rc.mutation.Public(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: role.FieldPublic,
+		})
+		_node.Public = value
+	}
 	if nodes := rc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -240,6 +287,44 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
 					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := rc.mutation.ChildrenIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   role.ChildrenTable,
+			Columns: role.ChildrenPrimaryKey,
+			Bidi:    true,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := rc.mutation.ParentsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   role.ParentsTable,
+			Columns: role.ParentsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: role.FieldID,
 				},
 			},
 		}

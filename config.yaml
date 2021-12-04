@@ -21,6 +21,21 @@ admin:
 anonymous:
   name: public
 
+roles:
+  - name: doctor
+    children:
+      - patient
+    users:
+      - email: xxx
+        password: yyy
+  - name: physitian
+    child: patient
+  - name: patient
+    public: true
+    parents:
+      - doctor
+      - physitian
+
 # roles:
 #   - name: default
 #     users:
@@ -28,6 +43,7 @@ anonymous:
 #         password: no-secure-password
 #       - email: user2@example.com
 #         password: no-secure-password
+
 
 mailersend:
   url: https://web-platform.teleus.minsky.cc/auth/recovery?token=

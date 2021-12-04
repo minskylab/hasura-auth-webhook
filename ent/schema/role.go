@@ -22,6 +22,7 @@ func (Role) Fields() []ent.Field {
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 
 		field.String("name").Unique(),
+		field.Bool("public"),
 	}
 }
 
@@ -29,5 +30,7 @@ func (Role) Fields() []ent.Field {
 func (Role) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("users", User.Type).Ref("roles"),
+		edge.To("children", Role.Type),
+		edge.From("parents", Role.Type).Ref("children"),
 	}
 }
