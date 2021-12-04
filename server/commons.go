@@ -20,9 +20,9 @@ func errorResponse(ctx *fiber.Ctx, err error) error {
 	})
 }
 
-func roleInRoles(a string, list []*ent.Role) bool {
+func roleInRoles(list []*ent.Role, a ...string) bool {
 	for _, b := range list {
-		if b.Name == a {
+		if b != nil && contains(a, b.Name) {
 			return true
 		}
 	}
@@ -78,4 +78,13 @@ func searchRolesInParents(ctx context.Context, myRoles []*ent.Role, parentSearch
 	}
 
 	return result, nil
+}
+
+func contains(s []string, e string) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
 }
