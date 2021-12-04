@@ -22,7 +22,7 @@ func (Role) Fields() []ent.Field {
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 
 		field.String("name").Unique(),
-		field.Bool("public"),
+		field.Bool("public").Optional(),
 	}
 }
 
