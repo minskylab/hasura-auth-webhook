@@ -62,6 +62,14 @@ func (rc *RoleCreate) SetPublic(b bool) *RoleCreate {
 	return rc
 }
 
+// SetNillablePublic sets the "public" field if the given value is not nil.
+func (rc *RoleCreate) SetNillablePublic(b *bool) *RoleCreate {
+	if b != nil {
+		rc.SetPublic(*b)
+	}
+	return rc
+}
+
 // SetID sets the "id" field.
 func (rc *RoleCreate) SetID(u uuid.UUID) *RoleCreate {
 	rc.mutation.SetID(u)
@@ -191,6 +199,10 @@ func (rc *RoleCreate) defaults() {
 	if _, ok := rc.mutation.UpdatedAt(); !ok {
 		v := role.DefaultUpdatedAt()
 		rc.mutation.SetUpdatedAt(v)
+	}
+	if _, ok := rc.mutation.Public(); !ok {
+		v := role.DefaultPublic
+		rc.mutation.SetPublic(v)
 	}
 	if _, ok := rc.mutation.ID(); !ok {
 		v := role.DefaultID()
