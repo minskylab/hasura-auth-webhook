@@ -10,7 +10,7 @@ import (
 	"github.com/golang-jwt/jwt"
 
 	"github.com/gofiber/fiber/v2"
-	mailersend "github.com/mailersend/mailersend-go"
+	// mailersend "github.com/mailersend/mailersend-go"
 	cache "github.com/patrickmn/go-cache"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
@@ -38,9 +38,9 @@ type PublicServer struct {
 	hostname string
 	port     int
 
-	Refresh    *RefreshCookie
-	Mailersend *mailersend.Mailersend
-	Config     *config.Config
+	Refresh *RefreshCookie
+	// Mailersend *mailersend.Mailersend
+	Config *config.Config
 }
 
 func NewPublicServer(client *ent.Client, auth *auth.AuthManager, conf *config.Config) services.PublicService {
@@ -53,9 +53,9 @@ func NewPublicServer(client *ent.Client, auth *auth.AuthManager, conf *config.Co
 		hostname: conf.API.Public.Hostname,
 		port:     conf.API.Public.Port,
 
-		Refresh:    (*RefreshCookie)(conf.Refresh),
-		Mailersend: mailersend.NewMailersend(conf.Mailersend.Key),
-		Config:     conf,
+		Refresh: (*RefreshCookie)(conf.Refresh),
+		// Mailersend: mailersend.NewMailersend(conf.Mailersend.Key),
+		Config: conf,
 	}
 }
 
@@ -247,7 +247,7 @@ func (p *PublicServer) RefreshToken(ctx *fiber.Ctx) error {
 
 func (p *PublicServer) RecoverPassword(ctx *fiber.Ctx) error {
 	email := string(ctx.Request().URI().QueryArgs().Peek("email"))
-	name := string(ctx.Request().URI().QueryArgs().Peek("name"))
+	// name := string(ctx.Request().URI().QueryArgs().Peek("name"))
 	if email == "" {
 		return errorResponse(ctx.Status(fiber.StatusBadRequest), errors.New("error: missing email"))
 	}
@@ -281,42 +281,42 @@ func (p *PublicServer) RecoverPassword(ctx *fiber.Ctx) error {
 		}
 	}
 
-	from := mailersend.From{
-		Name:  p.Config.Mailersend.User.Name,
-		Email: p.Config.Mailersend.User.Email,
-	}
+	// from := mailersend.From{
+	// 	Name:  p.Config.Mailersend.User.Name,
+	// 	Email: p.Config.Mailersend.User.Email,
+	// }
 
-	recipients := []mailersend.Recipient{
-		{
-			Name:  name,
-			Email: email,
-		},
-	}
+	// recipients := []mailersend.Recipient{
+	// 	{
+	// 		Name:  name,
+	// 		Email: email,
+	// 	},
+	// }
 
-	personalization := []mailersend.Personalization{
-		{
-			Email: email,
-			Data: map[string]interface{}{
-				"name":                  name,
-				"recovery_redirect_url": p.Config.Mailersend.Url + key,
-				"support_email":         p.Config.Mailersend.Support,
-				"account_name":          p.Config.Mailersend.Name,
-			},
-		},
-	}
+	// personalization := []mailersend.Personalization{
+	// 	{
+	// 		Email: email,
+	// 		Data: map[string]interface{}{
+	// 			"name":                  name,
+	// 			"recovery_redirect_url": p.Config.Mailersend.Url + key,
+	// 			"support_email":         p.Config.Mailersend.Support,
+	// 			"account_name":          p.Config.Mailersend.Name,
+	// 		},
+	// 	},
+	// }
 
-	message := p.Mailersend.Email.NewMessage()
+	// message := p.Mailersend.Email.NewMessage()
 
-	message.SetFrom(from)
-	message.SetRecipients(recipients)
-	message.SetSubject("Password Recovery")
-	message.SetTemplateID(p.Config.Mailersend.Template)
-	message.SetPersonalization(personalization)
+	// message.SetFrom(from)
+	// message.SetRecipients(recipients)
+	// message.SetSubject("Password Recovery")
+	// message.SetTemplateID(p.Config.Mailersend.Template)
+	// message.SetPersonalization(personalization)
 
-	_, err = p.Mailersend.Email.Send(ctx.Context(), message)
-	if err != nil {
-		return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
-	}
+	// _, err = p.Mailersend.Email.Send(ctx.Context(), message)
+	// if err != nil {
+	// 	return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
+	// }
 
 	return nil
 }

@@ -1,14 +1,14 @@
 package config
 
 type Config struct {
-	API        API        `yaml:"api"`
-	Refresh    *Refresh   `yaml:"refresh"`
-	DB         DB         `yaml:"db"`
-	JWT        JWT        `yaml:"jwt"`
-	Admin      Admin      `yaml:"admin"`
-	Anonymous  *Anonymous `yaml:"admin"`
-	Roles      []Role     `yaml:"roles,mapstructure"`
-	Mailersend Mailersend `yaml:"mailersend"`
+	JWT     JWT      `yaml:"jwt"`
+	API     API      `yaml:"api"`
+	Refresh *Refresh `yaml:"refresh"`
+	DB      Database `yaml:"db"`
+	Admin   Admin    `yaml:"admin"`
+	// Anonymous  *Anonymous `yaml:"admin"`
+	Roles []Role `yaml:"roles,mapstructure"`
+	// Mailersend Mailersend `yaml:"mailersend"`
 }
 
 type Refresh struct {
@@ -18,7 +18,7 @@ type Refresh struct {
 	HttpOnly bool   `yaml:"httpOnly"`
 }
 
-type DB struct {
+type Database struct {
 	URL string `yaml:"url"`
 }
 
@@ -46,9 +46,9 @@ type Admin struct {
 	Users []User `yaml:"users,flow,omitempty"`
 }
 
-type Anonymous struct {
-	Name string `yaml:"name"`
-}
+// type Anonymous struct {
+// 	Name string `yaml:"name"`
+// }
 
 type Role struct {
 	Name     string   `yaml:"name"`
@@ -70,11 +70,11 @@ type UserInfo struct {
 	Email string `yaml:"email"`
 }
 
-type Mailersend struct {
-	Key      string   `yaml:"key"`
-	Template string   `yaml:"template"`
-	Support  string   `yaml:"support"`
-	Name     string   `yaml:"name"`
-	User     UserInfo `yaml:"user"`
-	Url      string   `yaml:"url"`
-}
+// type Mailersend struct {
+// 	Key      string   `yaml:"key"`
+// 	Template string   `yaml:"template"`
+// 	Support  string   `yaml:"support"`
+// 	Name     string   `yaml:"name"`
+// 	User     UserInfo `yaml:"user"`
+// 	Url      string   `yaml:"url"`
+// }

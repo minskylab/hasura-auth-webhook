@@ -27,14 +27,15 @@ func main() {
 		[]byte(conf.JWT.RefreshSecret),
 	)
 
-	var anonymous *auth.AnonymousRole
-	if conf.Anonymous != nil {
-		anonymous = &auth.AnonymousRole{
-			Name: conf.Anonymous.Name,
-		}
-	}
+	// var anonymous *auth.AnonymousRole
+	// if conf.Anonymous != nil {
+	// 	anonymous = &auth.AnonymousRole{
+	// 		Name: conf.Anonymous.Name,
+	// 	}
+	// }
 
-	authManager, err := auth.New(secretSource, anonymous)
+	// authManager, err := auth.New(secretSource, anonymous)
+	authManager, err := auth.New(secretSource)
 	if err != nil {
 		logrus.Panicf("%+v", err)
 	}

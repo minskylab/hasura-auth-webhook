@@ -1,0 +1,32 @@
+version: "2"
+
+database:
+  url: ${DB_URL|sqlite:auth.db?loc=auto&_fk=1}
+
+auth:
+  jwt:
+    accessSecret: ${AUTH_JWT_ACCESS_SECRET|change-me-please}
+    refreshSecret: ${AUTH_JWT_REFRESH_SECRET|change-me-please}
+
+  api:
+    public:
+      hostname: ${AUTH_PUBLIC_HOSTNAME|0.0.0.0}
+      port: ${AUTH_PUBLIC_PORT|8080}
+    internal:
+      hostname: ${AUTH_INTERNAL_HOSTNAME|0.0.0.0}
+      port: ${AUTH_INTERNAL_PORT|1111}
+
+  admin:
+    users:
+      - email: ${AUTH_ADMIN_EMAIL|admin@example.com}
+        password: ${AUTH_ADMIN_PASSWORD|no-secure-password}
+
+roles:
+  - name: default
+    public: true
+
+webhooks:
+  recoveryPasswordEmail:
+    url: ${WEBHOOK_RECOVERY_PASSWORD|https://example.com/revoery-password}
+  magicLinkEmail:
+    url: ${WEBHOOK_MAGIC_LINK|https://example.com/magic-link}
