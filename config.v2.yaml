@@ -6,7 +6,7 @@ database:
 api:
   public:
     hostname: ${API_PUBLIC_HOSTNAME|0.0.0.0}
-    port: ${AUTH_PUBLIC_PORT|8080}
+    port: ${API_PUBLIC_PORT|8080}
   internal:
     hostname: ${API_INTERNAL_HOSTNAME|0.0.0.0}
     port: ${API_INTERNAL_PORT|1111}
