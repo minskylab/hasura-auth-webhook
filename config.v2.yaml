@@ -1,7 +1,7 @@
 version: "2"
 
 database:
-  url: ${DB_URL|sqlite:auth.db?loc=auto&_fk=1}
+  url: ${DATABASE_URL|sqlite:auth.db?loc=auto&_fk=1}
 
 api:
   public:
@@ -28,12 +28,12 @@ providers:
       refreshSecret: ${PROVIDERS_EMAIL_JWT_REFRESH_SECRET|change-me-please}
     webhooks:
       recoveryPasswordEvent:
-        url: ${PROVIDERS_EMAIL_WEBHOOKS_RECOVERY_PASSWORD_EVENT}
+        url: ${PROVIDERS_EMAIL_WEBHOOKS_RECOVERY_PASSWORD_EVENT|}
       registerEvent:
-        url: ${PROVIDERS_EMAIL_WEBHOOKS_REGISTER_EVENT}
+        url: ${PROVIDERS_EMAIL_WEBHOOKS_REGISTER_EVENT|}
 
   magiclink:
-    enabled: ${PROVIDERS_MAGICLINK_ENABLED}
+    enabled: ${PROVIDERS_MAGICLINK_ENABLED|}
     webhooks:
       loginEvent:
-        url: ${PROVIDERS_MAGICLINK_WEBHOOKS_LOGIN_EVENT}
+        url: ${PROVIDERS_MAGICLINK_WEBHOOKS_LOGIN_EVENT|}
