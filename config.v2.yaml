@@ -5,16 +5,16 @@ database:
 
 api:
   public:
-    hostname: ${AUTH_PUBLIC_HOSTNAME|0.0.0.0}
+    hostname: ${API_PUBLIC_HOSTNAME|0.0.0.0}
     port: ${AUTH_PUBLIC_PORT|8080}
   internal:
-    hostname: ${AUTH_INTERNAL_HOSTNAME|0.0.0.0}
-    port: ${AUTH_INTERNAL_PORT|1111}
+    hostname: ${API_INTERNAL_HOSTNAME|0.0.0.0}
+    port: ${API_INTERNAL_PORT|1111}
 
 admin:
   users:
-    - email: ${AUTH_ADMIN_EMAIL|admin@example.com}
-      password: ${AUTH_ADMIN_PASSWORD|no-secure-password}
+    - email: ${ADMIN_USER_EMAIL|admin@example.com}
+      password: ${ADMIN_USER_PASSWORD|no-secure-password}
 
 roles:
   - name: default

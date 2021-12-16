@@ -151,6 +151,25 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 type LoginMagicLinkEvent struct {
 	EventAt time.Time `json:"event_at"`
 	Email   string    `json:"email"`
+
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+func (p *PublicServer) generateTokens(u *ent.User) (string, string, error) {
+	// generate access token for user
+	accessToken, err := p.Auth.DispatchAccessToken(u)
+	if err != nil {
+		return "", "", errors.New("there was an error creating the access token")
+	}
+
+	// generate Refresh token for user
+	refreshToken, err := p.Auth.DispatchRefreshToken(u)
+	if err != nil {
+		return "", "", errors.New("there was an error creating the access token")
+	}
+
+	return accessToken, refreshToken, nil
 }
 
 func (p *PublicServer) Login(ctx *fiber.Ctx) error {
@@ -170,12 +189,19 @@ func (p *PublicServer) Login(ctx *fiber.Ctx) error {
 	}
 
 	if req.Password == "" && p.Config.Webhooks.MagicLink.LoginEvent.URL != "" {
+		accessToken, refreshToken, err := p.generateTokens(u)
+		if err != nil {
+			return errorResponse(ctx.Status(500), err)
+		}
+
 		eventAt := time.Now()
 		res, err := p.HTTPCLient.R().
 			SetHeaders(p.Config.Webhooks.MagicLink.LoginEvent.Headers).
 			SetBody(LoginMagicLinkEvent{
-				EventAt: eventAt,
-				Email:   req.Email,
+				EventAt:      eventAt,
+				Email:        req.Email,
+				AccessToken:  accessToken,
+				RefreshToken: refreshToken,
 			}).
 			Post(p.Config.Webhooks.MagicLink.LoginEvent.URL)
 		if err != nil {
@@ -201,16 +227,9 @@ func (p *PublicServer) Login(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(400), errors.New("wrong credentials"))
 	}
 
-	// generate access token for user
-	accessToken, err := p.Auth.DispatchAccessToken(u)
+	accessToken, refreshToken, err := p.generateTokens(u)
 	if err != nil {
-		return errorResponse(ctx.Status(500), errors.New("there was an error creating the access token"))
-	}
-
-	// generate Refresh token for user
-	refreshToken, err := p.Auth.DispatchRefreshToken(u)
-	if err != nil {
-		return errorResponse(ctx.Status(500), errors.New("there was an error creating the access token"))
+		return errorResponse(ctx.Status(500), err)
 	}
 
 	cookieOps := fiber.Cookie{
