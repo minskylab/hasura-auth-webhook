@@ -7,12 +7,21 @@ Content-Type: application/json
     "role": "default"
 }
 
-###
-
+########################
+# With Email & Password
 POST http://localhost:8080/login HTTP/1.1
 Content-Type: application/json
 
 {
     "email": "bregy@minsky.cc",
     "password": "test"
+}
+
+##################
+# With magic link
+POST http://localhost:8080/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "bregy@minsky.cc"
 }

@@ -85,14 +85,14 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 	if !rol.Public {
 		authorizationHeader := ctx.Get(authorizationHeaderName)
 
-		me, err := helpers.ValidateAndGetUserDataFromToken(p.Client, p.Auth, ctx.Context(), authorizationHeader, bearerTokenWord)
+		creator, err := helpers.ValidateAndGetUserDataFromToken(p.Client, p.Auth, ctx.Context(), authorizationHeader, bearerTokenWord)
 		if err != nil {
 			return errorResponse(ctx.Status(401), err)
 		}
 
-		myRoles := me.Edges.Roles
+		creatorRoles := creator.Edges.Roles
 
-		result, err := searchRolesInParents(ctx.Context(), myRoles, rol)
+		result, err := searchRolesInParents(ctx.Context(), creatorRoles, rol)
 		if err != nil {
 			return errorResponse(ctx.Status(401), err)
 		}
@@ -172,6 +172,34 @@ func (p *PublicServer) generateTokens(u *ent.User) (string, string, error) {
 	return accessToken, refreshToken, nil
 }
 
+func (p *PublicServer) magicLinkFlow(ctx *fiber.Ctx, u *ent.User) error {
+	accessToken, refreshToken, err := p.generateTokens(u)
+	if err != nil {
+		return errorResponse(ctx.Status(500), err)
+	}
+
+	eventAt := time.Now()
+	res, err := p.HTTPCLient.R().
+		SetHeaders(p.Config.Webhooks.MagicLink.LoginEvent.Headers).
+		SetBody(LoginMagicLinkEvent{
+			EventAt:      eventAt,
+			Email:        u.Email,
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		}).
+		Post(p.Config.Webhooks.MagicLink.LoginEvent.URL)
+	if err != nil {
+		return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
+	}
+
+	logrus.Info(res.String())
+
+	return ctx.Status(fiber.StatusOK).JSON(map[string]string{
+		"event_at": eventAt.Format(time.RFC3339),
+		"result":   "ok",
+	})
+}
+
 func (p *PublicServer) Login(ctx *fiber.Ctx) error {
 	var req services.LoginRequest
 	if err := ctx.BodyParser(&req); err != nil {
@@ -188,42 +216,28 @@ func (p *PublicServer) Login(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(400), errors.WithMessage(err, "wrong credentials"))
 	}
 
-	if req.Password == "" && p.Config.Webhooks.MagicLink.LoginEvent.URL != "" {
-		accessToken, refreshToken, err := p.generateTokens(u)
-		if err != nil {
-			return errorResponse(ctx.Status(500), err)
-		}
+	magicLinkWebhookExists := p.Config.Webhooks.MagicLink.LoginEvent.URL != ""
+	passwordNotExists := req.Password == nil
+	passwordIsBlank := req.Password != nil && *req.Password == ""
 
-		eventAt := time.Now()
-		res, err := p.HTTPCLient.R().
-			SetHeaders(p.Config.Webhooks.MagicLink.LoginEvent.Headers).
-			SetBody(LoginMagicLinkEvent{
-				EventAt:      eventAt,
-				Email:        req.Email,
-				AccessToken:  accessToken,
-				RefreshToken: refreshToken,
-			}).
-			Post(p.Config.Webhooks.MagicLink.LoginEvent.URL)
-		if err != nil {
-			return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
-		}
-
-		logrus.Info(res.String())
-
-		return ctx.Status(fiber.StatusOK).JSON(map[string]string{
-			"event_at": eventAt.Format(time.RFC3339),
-			"result":   "ok",
-		})
+	if magicLinkWebhookExists && passwordNotExists {
+		return p.magicLinkFlow(ctx, u)
 	}
 
-	//
+	if magicLinkWebhookExists && passwordIsBlank {
+		return p.magicLinkFlow(ctx, u)
+	}
 
-	if ok := helpers.ValidatePassword(req.Password); !ok {
+	if passwordNotExists {
+		return errorResponse(ctx.Status(400), errors.New("wrong input data"))
+	}
+
+	if ok := helpers.ValidatePassword(*req.Password); !ok {
 		return errorResponse(ctx.Status(400), errors.New("wrong input data"))
 	}
 
 	// compare password
-	if ok := helpers.CheckPasswordHash(req.Password, u.HashedPassword); !ok {
+	if ok := helpers.CheckPasswordHash(*req.Password, u.HashedPassword); !ok {
 		return errorResponse(ctx.Status(400), errors.New("wrong credentials"))
 	}
 
@@ -296,17 +310,6 @@ func (p *PublicServer) RefreshToken(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(500), errors.New("there was an error creating the access token"))
 	}
 
-	// // generate Refresh token for user
-	// refreshToken, err = p.Auth.DispatchRefreshToken(u)
-	// if err != nil {
-	// 	return errorResponse(ctx.Status(500), errors.New("there was an error creating the access token"))
-	// }
-
-	// ctx.Cookie(&fiber.Cookie{
-	// 	Name:  refreshTokenCookieName,
-	// 	Value: refreshToken,
-	// })
-
 	// parse json response
 	res := services.RefreshTokenResponse{
 		UserID:      u.ID.String(),
@@ -368,7 +371,7 @@ func (p *PublicServer) RecoverPassword(ctx *fiber.Ctx) error {
 			Post(p.Config.Webhooks.Email.RecoveryPasswordEvent.URL)
 		if err != nil {
 			// return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
-			logrus.Warn(err)
+			logrus.Error(err)
 		}
 
 		logrus.Info(req.String())
