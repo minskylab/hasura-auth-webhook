@@ -35,3 +35,14 @@ roles:
     parents:
       - doctor
       - physitian
+
+webhooks:
+  email:
+    recoveryPasswordEvent:
+      url: ${PROVIDERS_EMAIL_WEBHOOKS_RECOVERY_PASSWORD_EVENT}
+    registerEvent:
+      url: ${PROVIDERS_EMAIL_WEBHOOKS_REGISTER_EVENT}
+
+  magiclink:
+    loginEvent:
+      url: ${PROVIDERS_MAGICLINK_WEBHOOKS_LOGIN_EVENT}

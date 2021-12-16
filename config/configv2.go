@@ -6,26 +6,59 @@ type JWT2 struct {
 	RefreshOptions Refresh `yaml:"refreshOptions"`
 }
 
-type Auth struct {
-	API   API   `yaml:"api"`
-	JWT   JWT2  `yaml:"jwt"`
-	Admin Admin `yaml:"admin"`
+type EmailProvider struct {
+	Enabled  bool          `yaml:"enabled"`
+	JWT      JWT2          `yaml:"jwt"`
+	Webhooks EmailWebhooks `yaml:"webhooks"`
+}
+
+type MagicLinkProvider struct {
+	Enabled  bool              `yaml:"enabled"`
+	Webhooks MagicLinkWebhooks `yaml:"webhooks"`
+}
+
+type Providers struct {
+	Email     EmailProvider     `yaml:"email"`
+	MagicLink MagicLinkProvider `yaml:"magicLink"`
 }
 
 type Config2 struct {
-	Version string `yaml:"version"`
-
-	Database Database `yaml:"database"`
-	Auth     Auth     `yaml:"auth"`
-	Roles    []Role   `yaml:"roles,mapstructure"`
+	Database  Database  `yaml:"database"`
+	API       API       `yaml:"api"`
+	Admin     Admin     `yaml:"admin"`
+	Roles     []Role    `yaml:"roles,mapstructure"`
+	Providers Providers `yaml:"providers"`
 }
 
-type Webhooks struct {
-	RecoveryPasswordEmail Webhook `yaml:"recoveryPasswordEmail"`
-	MagicLinkEmail        Webhook `yaml:"magicLinkEmail"`
+type EmailWebhooks struct {
+	RecoveryPasswordEvent Webhook `yaml:"recoveryPasswordEvent"`
+	RegisterEvent         Webhook `yaml:"registerEvent"`
+}
+
+type MagicLinkWebhooks struct {
+	LoginEvent Webhook `yaml:"loginEvent"`
 }
 
 type Webhook struct {
 	URL     string            `yaml:"url"`
 	Headers map[string]string `yaml:"headers"`
+}
+
+func ConfigV2ToConfigV1(c *Config2) *Config {
+	confV1 := new(Config)
+	confV1.API = c.API
+	confV1.DB = c.Database
+	confV1.Admin = c.Admin
+	confV1.JWT = JWT{
+		AccessSecret:  c.Providers.Email.JWT.AccessSecret,
+		RefreshSecret: c.Providers.Email.JWT.RefreshSecret,
+	}
+	confV1.Refresh = &c.Providers.Email.JWT.RefreshOptions
+	confV1.Roles = c.Roles
+	confV1.Webhooks = Webhooks{
+		Email:     c.Providers.Email.Webhooks,
+		MagicLink: c.Providers.MagicLink.Webhooks,
+	}
+
+	return confV1
 }

@@ -30,11 +30,6 @@ require (
 )
 
 require (
-	github.com/davecgh/go-spew v1.1.1
-)
-
-require (
-	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/gookit/goutil v0.3.15 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/json-iterator/go v1.1.11 // indirect
@@ -42,31 +37,11 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
+	golang.org/x/net v0.0.0-20211029224645-99673261e6eb // indirect
 )
 
 require (
-	github.com/go-bindata/go-bindata v1.0.1-0.20190711162640-ee3c2418e368 // indirect
-	github.com/go-openapi/inflect v0.19.0 // indirect
-	github.com/google/go-cmp v0.5.6 // indirect
-	github.com/gookit/goutil v0.3.15 // indirect
-	github.com/imdario/mergo v0.3.12 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
-	github.com/json-iterator/go v1.1.11 // indirect
-	github.com/mattn/go-isatty v0.0.13 // indirect
-	github.com/mattn/go-runewidth v0.0.9 // indirect
-	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.1 // indirect
-	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/spf13/cobra v1.1.3 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/mod v0.4.2 // indirect
-	golang.org/x/tools v0.1.5 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-)
-
-require (
-	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/go-resty/resty/v2 v2.7.0
 	github.com/gookit/config/v2 v2.0.27
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

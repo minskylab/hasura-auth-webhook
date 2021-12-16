@@ -9,6 +9,12 @@ type Config struct {
 	// Anonymous  *Anonymous `yaml:"admin"`
 	Roles []Role `yaml:"roles,mapstructure"`
 	// Mailersend Mailersend `yaml:"mailersend"`
+	Webhooks Webhooks `yaml:"webhooks"`
+}
+
+type Webhooks struct {
+	Email     EmailWebhooks     `yaml:"email"`
+	MagicLink MagicLinkWebhooks `yaml:"magicLink"`
 }
 
 type Refresh struct {
