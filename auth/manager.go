@@ -18,7 +18,7 @@ type AuthManager struct {
 	refreshTokenDuration time.Duration
 	accessSecret         []byte
 	refreshSecret        []byte
-	anonymous            *AnonymousRole
+	// anonymous            *AnonymousRole
 }
 
 type AnonymousRole struct {
@@ -50,10 +50,10 @@ func (auth *AuthManager) ValidateRefreshToken(token string) (*TokenPayload, erro
 	return validateToken(token, auth.refreshSecret)
 }
 
-func (auth *AuthManager) IsAnonymousAllowed() bool {
-	return auth.anonymous != nil
-}
+// func (auth *AuthManager) IsAnonymousAllowed() bool {
+// return auth.anonymous != nil
+// }
 
-func (auth *AuthManager) GetAnonymous() *AnonymousRole {
-	return auth.anonymous
-}
+// func (auth *AuthManager) GetAnonymous() *AnonymousRole {
+// 	return auth.anonymous
+// }

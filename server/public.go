@@ -5,12 +5,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-resty/resty/v2"
 	"github.com/minskylab/hasura-auth-webhook/ent/role"
+	"github.com/sirupsen/logrus"
 
 	"github.com/golang-jwt/jwt"
 
 	"github.com/gofiber/fiber/v2"
-	mailersend "github.com/mailersend/mailersend-go"
+	// mailersend "github.com/mailersend/mailersend-go"
 	cache "github.com/patrickmn/go-cache"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
@@ -31,31 +33,28 @@ type RefreshCookie struct {
 }
 
 type PublicServer struct {
-	Client *ent.Client
-	Auth   *auth.AuthManager
-	cache  *cache.Cache
+	Client     *ent.Client
+	Auth       *auth.AuthManager
+	Refresh    *RefreshCookie
+	Config     *config.Config
+	HTTPCLient *resty.Client
+	cache      *cache.Cache
 
 	hostname string
 	port     int
-
-	Refresh    *RefreshCookie
-	Mailersend *mailersend.Mailersend
-	Config     *config.Config
 }
 
 func NewPublicServer(client *ent.Client, auth *auth.AuthManager, conf *config.Config) services.PublicService {
 	return &PublicServer{
-		Client: client,
-		Auth:   auth,
-		// cache: cache.New(24*time.Hour, 12*time.Hour),
-		cache: cache.New(5*time.Second, 10*time.Second),
+		Client:     client,
+		Auth:       auth,
+		HTTPCLient: resty.New(),
+		Refresh:    (*RefreshCookie)(conf.Refresh),
+		Config:     conf,
 
+		cache:    cache.New(5*time.Second, 10*time.Second),
 		hostname: conf.API.Public.Hostname,
 		port:     conf.API.Public.Port,
-
-		Refresh:    (*RefreshCookie)(conf.Refresh),
-		Mailersend: mailersend.NewMailersend(conf.Mailersend.Key),
-		Config:     conf,
 	}
 }
 
@@ -81,14 +80,14 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 	if !rol.Public {
 		authorizationHeader := ctx.Get(authorizationHeaderName)
 
-		me, err := helpers.ValidateAndGetUserDataFromToken(p.Client, p.Auth, ctx.Context(), authorizationHeader, bearerTokenWord)
+		creator, err := helpers.ValidateAndGetUserDataFromToken(p.Client, p.Auth, ctx.Context(), authorizationHeader, bearerTokenWord)
 		if err != nil {
 			return errorResponse(ctx.Status(401), err)
 		}
 
-		myRoles := me.Edges.Roles
+		creatorRoles := creator.Edges.Roles
 
-		result, err := searchRolesInParents(ctx.Context(), myRoles, rol)
+		result, err := searchRolesInParents(ctx.Context(), creatorRoles, rol)
 		if err != nil {
 			return errorResponse(ctx.Status(401), err)
 		}
@@ -124,7 +123,68 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 		UserID: u.ID.String(),
 	}
 
+	// TODO: !Non blocking webhook invocation
+	if p.Config.Webhooks.Email.RegisterEvent.URL != "" {
+		res, err := p.HTTPCLient.R().
+			SetHeaders(p.Config.Webhooks.Email.RegisterEvent.Headers).
+			SetBody(NewRegisterEvent{
+				EventAt: time.Now(),
+				UserID:  u.ID.String(),
+			}).
+			Post(p.Config.Webhooks.Email.RegisterEvent.URL)
+		if err != nil {
+			// return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
+			logrus.Warn(err)
+		}
+
+		logrus.Info(res.String())
+	}
+
 	return ctx.Status(201).JSON(res)
+}
+
+func (p *PublicServer) generateTokens(u *ent.User) (string, string, error) {
+	// generate access token for user
+	accessToken, err := p.Auth.DispatchAccessToken(u)
+	if err != nil {
+		return "", "", errors.New("there was an error creating the access token")
+	}
+
+	// generate Refresh token for user
+	refreshToken, err := p.Auth.DispatchRefreshToken(u)
+	if err != nil {
+		return "", "", errors.New("there was an error creating the access token")
+	}
+
+	return accessToken, refreshToken, nil
+}
+
+func (p *PublicServer) magicLinkFlow(ctx *fiber.Ctx, u *ent.User) error {
+	accessToken, refreshToken, err := p.generateTokens(u)
+	if err != nil {
+		return errorResponse(ctx.Status(500), err)
+	}
+
+	eventAt := time.Now()
+	res, err := p.HTTPCLient.R().
+		SetHeaders(p.Config.Webhooks.MagicLink.LoginEvent.Headers).
+		SetBody(LoginMagicLinkEvent{
+			UserID:       u.ID.String(),
+			EventAt:      eventAt,
+			AccessToken:  accessToken,
+			RefreshToken: refreshToken,
+		}).
+		Post(p.Config.Webhooks.MagicLink.LoginEvent.URL)
+	if err != nil {
+		return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
+	}
+
+	logrus.Info(res.String())
+
+	return ctx.Status(fiber.StatusOK).JSON(map[string]string{
+		"event_at": eventAt.Format(time.RFC3339),
+		"result":   "ok",
+	})
 }
 
 func (p *PublicServer) Login(ctx *fiber.Ctx) error {
@@ -137,31 +197,40 @@ func (p *PublicServer) Login(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(400), errors.New("wrong input data"))
 	}
 
-	if ok := helpers.ValidatePassword(req.Password); !ok {
-		return errorResponse(ctx.Status(400), errors.New("wrong input data"))
-	}
-
 	// lookup user by email
 	u, err := p.Client.User.Query().Where(user.Email(req.Email)).Only(ctx.Context())
 	if err != nil {
 		return errorResponse(ctx.Status(400), errors.WithMessage(err, "wrong credentials"))
 	}
 
+	magicLinkWebhookExists := p.Config.Webhooks.MagicLink.LoginEvent.URL != ""
+	passwordNotExists := req.Password == nil
+	passwordIsBlank := req.Password != nil && *req.Password == ""
+
+	if magicLinkWebhookExists && passwordNotExists {
+		return p.magicLinkFlow(ctx, u)
+	}
+
+	if magicLinkWebhookExists && passwordIsBlank {
+		return p.magicLinkFlow(ctx, u)
+	}
+
+	if passwordNotExists {
+		return errorResponse(ctx.Status(400), errors.New("wrong input data"))
+	}
+
+	if ok := helpers.ValidatePassword(*req.Password); !ok {
+		return errorResponse(ctx.Status(400), errors.New("wrong input data"))
+	}
+
 	// compare password
-	if ok := helpers.CheckPasswordHash(req.Password, u.HashedPassword); !ok {
+	if ok := helpers.CheckPasswordHash(*req.Password, u.HashedPassword); !ok {
 		return errorResponse(ctx.Status(400), errors.New("wrong credentials"))
 	}
 
-	// generate access token for user
-	accessToken, err := p.Auth.DispatchAccessToken(u)
+	accessToken, refreshToken, err := p.generateTokens(u)
 	if err != nil {
-		return errorResponse(ctx.Status(500), errors.New("there was an error creating the access token"))
-	}
-
-	// generate Refresh token for user
-	refreshToken, err := p.Auth.DispatchRefreshToken(u)
-	if err != nil {
-		return errorResponse(ctx.Status(500), errors.New("there was an error creating the access token"))
+		return errorResponse(ctx.Status(500), err)
 	}
 
 	cookieOps := fiber.Cookie{
@@ -170,7 +239,10 @@ func (p *PublicServer) Login(ctx *fiber.Ctx) error {
 	}
 
 	if p.Refresh != nil {
-		cookieOps.Name = p.Refresh.Name
+		if p.Refresh.Name != "" {
+			cookieOps.Name = p.Refresh.Name
+		}
+
 		cookieOps.Domain = p.Refresh.Domain
 		cookieOps.HTTPOnly = p.Refresh.HttpOnly
 		cookieOps.Secure = p.Refresh.Secure
@@ -225,17 +297,6 @@ func (p *PublicServer) RefreshToken(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(500), errors.New("there was an error creating the access token"))
 	}
 
-	// // generate Refresh token for user
-	// refreshToken, err = p.Auth.DispatchRefreshToken(u)
-	// if err != nil {
-	// 	return errorResponse(ctx.Status(500), errors.New("there was an error creating the access token"))
-	// }
-
-	// ctx.Cookie(&fiber.Cookie{
-	// 	Name:  refreshTokenCookieName,
-	// 	Value: refreshToken,
-	// })
-
 	// parse json response
 	res := services.RefreshTokenResponse{
 		UserID:      u.ID.String(),
@@ -247,7 +308,7 @@ func (p *PublicServer) RefreshToken(ctx *fiber.Ctx) error {
 
 func (p *PublicServer) RecoverPassword(ctx *fiber.Ctx) error {
 	email := string(ctx.Request().URI().QueryArgs().Peek("email"))
-	name := string(ctx.Request().URI().QueryArgs().Peek("name"))
+	// name := string(ctx.Request().URI().QueryArgs().Peek("name"))
 	if email == "" {
 		return errorResponse(ctx.Status(fiber.StatusBadRequest), errors.New("error: missing email"))
 	}
@@ -274,48 +335,27 @@ func (p *PublicServer) RecoverPassword(ctx *fiber.Ctx) error {
 		return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
 	}
 
-	{
-		err = p.Client.User.UpdateOne(u).SetRecoverPasswordToken(key).Exec(ctx.Context())
-		if err != nil {
-			return err
-		}
-	}
-
-	from := mailersend.From{
-		Name:  p.Config.Mailersend.User.Name,
-		Email: p.Config.Mailersend.User.Email,
-	}
-
-	recipients := []mailersend.Recipient{
-		{
-			Name:  name,
-			Email: email,
-		},
-	}
-
-	personalization := []mailersend.Personalization{
-		{
-			Email: email,
-			Data: map[string]interface{}{
-				"name":                  name,
-				"recovery_redirect_url": p.Config.Mailersend.Url + key,
-				"support_email":         p.Config.Mailersend.Support,
-				"account_name":          p.Config.Mailersend.Name,
-			},
-		},
-	}
-
-	message := p.Mailersend.Email.NewMessage()
-
-	message.SetFrom(from)
-	message.SetRecipients(recipients)
-	message.SetSubject("Password Recovery")
-	message.SetTemplateID(p.Config.Mailersend.Template)
-	message.SetPersonalization(personalization)
-
-	_, err = p.Mailersend.Email.Send(ctx.Context(), message)
+	err = p.Client.User.UpdateOne(u).SetRecoverPasswordToken(key).Exec(ctx.Context())
 	if err != nil {
 		return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
+	}
+
+	// TODO: !Non blocking webhook invocation
+	if p.Config.Webhooks.Email.RecoveryPasswordEvent.URL != "" {
+		req, err := p.HTTPCLient.R().
+			SetHeaders(p.Config.Webhooks.Email.RecoveryPasswordEvent.Headers).
+			SetBody(RecoverPasswordEvent{
+				EventAt: time.Now(),
+				UserID:  u.ID.String(),
+				Token:   key,
+			}).
+			Post(p.Config.Webhooks.Email.RecoveryPasswordEvent.URL)
+		if err != nil {
+			// return errorResponse(ctx.Status(fiber.StatusInternalServerError), err)
+			logrus.Error(err)
+		}
+
+		logrus.Info(req.String())
 	}
 
 	return nil

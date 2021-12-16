@@ -7,7 +7,7 @@ type InternalService interface {
 	Port() int
 
 	HasuraWebhook(ctx *fiber.Ctx) error
-	ListUsers(ctx *fiber.Ctx) error
+	// ListUsers(ctx *fiber.Ctx) error
 
 	Me(ctx *fiber.Ctx) error
 }
