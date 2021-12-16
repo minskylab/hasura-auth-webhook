@@ -66,11 +66,6 @@ func (p *PublicServer) Port() int {
 	return p.port
 }
 
-type NewRegisterEvent struct {
-	EventAt time.Time `json:"event_at"`
-	UserID  string    `json:"user_id"`
-}
-
 func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 	var req services.SignUpRequest
 	if err := ctx.BodyParser(&req); err != nil {
@@ -148,14 +143,6 @@ func (p *PublicServer) Register(ctx *fiber.Ctx) error {
 	return ctx.Status(201).JSON(res)
 }
 
-type LoginMagicLinkEvent struct {
-	EventAt time.Time `json:"event_at"`
-	Email   string    `json:"email"`
-
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-}
-
 func (p *PublicServer) generateTokens(u *ent.User) (string, string, error) {
 	// generate access token for user
 	accessToken, err := p.Auth.DispatchAccessToken(u)
@@ -182,8 +169,8 @@ func (p *PublicServer) magicLinkFlow(ctx *fiber.Ctx, u *ent.User) error {
 	res, err := p.HTTPCLient.R().
 		SetHeaders(p.Config.Webhooks.MagicLink.LoginEvent.Headers).
 		SetBody(LoginMagicLinkEvent{
+			UserID:       u.ID.String(),
 			EventAt:      eventAt,
-			Email:        u.Email,
 			AccessToken:  accessToken,
 			RefreshToken: refreshToken,
 		}).
@@ -317,12 +304,6 @@ func (p *PublicServer) RefreshToken(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(200).JSON(res)
-}
-
-type RecoverPasswordEvent struct {
-	EventAt time.Time `json:"event_at"`
-	UserID  string    `json:"user_id"`
-	Token   string    `json:"token"`
 }
 
 func (p *PublicServer) RecoverPassword(ctx *fiber.Ctx) error {
