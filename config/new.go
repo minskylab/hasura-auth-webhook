@@ -6,22 +6,22 @@ import (
 	"github.com/pkg/errors"
 )
 
-func initConfig(filepath string) error {
+func initConfig(filepaths ...string) error {
 	config.WithOptions(config.ParseEnv)
 	config.AddDriver(yaml.Driver)
 	config.WithOptions(func(opt *config.Options) {
 		opt.TagName = "yaml"
 	})
 
-	if err := config.LoadFiles(filepath); err != nil {
+	if err := config.LoadFiles(filepaths...); err != nil {
 		return errors.WithStack(err)
 	}
 
 	return nil
 }
 
-func NewConfig(filepath string) (*Config, error) {
-	if err := initConfig(filepath); err != nil {
+func NewConfig(filepaths ...string) (*Config, error) {
+	if err := initConfig(filepaths...); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
@@ -30,8 +30,8 @@ func NewConfig(filepath string) (*Config, error) {
 	return c, config.BindStruct("", c)
 }
 
-func NewConfigV2(filepath string) (*Config2, error) {
-	if err := initConfig(filepath); err != nil {
+func NewConfigV2(filepaths ...string) (*Config2, error) {
+	if err := initConfig(filepaths...); err != nil {
 		return nil, errors.WithStack(err)
 	}
 

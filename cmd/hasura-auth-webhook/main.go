@@ -11,9 +11,15 @@ import (
 	"github.com/minskylab/hasura-auth-webhook/engine"
 )
 
+const (
+	defaultConfigfileV1 = "config.yaml"
+	defaultConfigfileV2 = "config.v2.yaml"
+)
+
 func main() {
 	debug := flag.Bool("debug", false, "enable debug mode")
-	configV2 := flag.Bool("config2", false, "enable file config v2")
+	configVersion := flag.Int("config-version", 2, "enable file config v2")
+	configFile := flag.String("config", "", "config file path")
 
 	flag.Parse()
 
@@ -23,14 +29,22 @@ func main() {
 
 	var conf *config.Config
 
-	if configV2 != nil && *configV2 {
-		logrus.Info("Using config v2")
-		confV2, _ := config.NewConfigV2("config.v2.yaml")
+	if *configVersion == 1 {
+		if *configFile == "" {
+			conf, _ = config.NewConfig(defaultConfigfileV1)
+		} else {
+			conf, _ = config.NewConfig(*configFile)
+		}
+	} else if *configVersion == 2 {
+		var confV2 *config.Config2
+		if *configFile == "" {
+			confV2, _ = config.NewConfigV2(defaultConfigfileV2)
+		} else {
+			confV2, _ = config.NewConfigV2(*configFile)
+		}
+
 		conf = config.ConfigV2ToConfigV1(confV2)
-	} else {
-		conf, _ = config.NewConfig("config.yaml")
 	}
-	// helpers.Log(conf)
 
 	client, err := db.OpenDBClient(conf)
 	if err != nil {
