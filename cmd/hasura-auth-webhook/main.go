@@ -19,7 +19,7 @@ const (
 func main() {
 	debug := flag.Bool("debug", false, "enable debug mode")
 	configVersion := flag.Int("config-version", 2, "enable file config v2")
-	configFile := flag.String("config", "", "config file path")
+	configFile := flag.String("config-file", "", "config file path")
 
 	flag.Parse()
 
