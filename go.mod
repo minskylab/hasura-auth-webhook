@@ -7,7 +7,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.19.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/kr/text v0.2.0 // indirect
-	github.com/lib/pq v1.10.3
+	github.com/lib/pq v1.10.6
 	github.com/mattn/go-sqlite3 v1.14.8
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pkg/errors v0.9.1
