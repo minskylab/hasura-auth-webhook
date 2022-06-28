@@ -1,48 +1,39 @@
-db:
-  url: ${DB_URL|sqlite:auth.db?loc=auto&_fk=1}
+version: "2"
 
-jwt:
-  accessSecret: ${JWT_ACCESS_SECRET|changemeplease}
-  refreshSecret: ${JWT_REFRESH_SECRET|changemeplease}
+database:
+  url: ${DATABASE_URL|sqlite:auth.db?loc=auto&_fk=1}
 
 api:
   public:
-    hostname: ${PUBLIC_HOSTNAME|0.0.0.0}
-    port: ${PUBLIC_PORT|8080}
+    hostname: ${API_PUBLIC_HOSTNAME|0.0.0.0}
+    port: ${API_PUBLIC_PORT|8080}
   internal:
-    hostname: ${INTERNAL_HOSTNAME|0.0.0.0}
-    port: ${INTERNAL_PORT|1111}
+    hostname: ${API_INTERNAL_HOSTNAME|0.0.0.0}
+    port: ${API_INTERNAL_PORT|1111}
 
 admin:
   users:
-    - email: ${ADMIN_EMAIL|admin@example.com}
-      password: ${ADMIN_PASSWORD|no-secure-password}
-
-anonymous:
-  name: public
+    - email: ${ADMIN_USER_EMAIL|admin@example.com}
+      password: ${ADMIN_USER_PASSWORD|no-secure-password}
 
 roles:
-  - name: doctor
-    children:
-      - patient
-    users:
-      - email: xxx
-        password: yyy
-  - name: physitian
-    child: patient
-  - name: patient
+  - name: default
     public: true
-    parents:
-      - doctor
-      - physitian
 
-webhooks:
+providers:
   email:
-    recoveryPasswordEvent:
-      url: ${PROVIDERS_EMAIL_WEBHOOKS_RECOVERY_PASSWORD_EVENT}
-    registerEvent:
-      url: ${PROVIDERS_EMAIL_WEBHOOKS_REGISTER_EVENT}
+    enabled: ${PROVIDERS_EMAIL_ENABLED|true}
+    jwt:
+      accessSecret: ${PROVIDERS_EMAIL_JWT_ACCESS_SECRET|change-me-please}
+      refreshSecret: ${PROVIDERS_EMAIL_JWT_REFRESH_SECRET|change-me-please}
+    webhooks:
+      recoveryPasswordEvent:
+        url: ${PROVIDERS_EMAIL_WEBHOOKS_RECOVERY_PASSWORD_EVENT|}
+      registerEvent:
+        url: ${PROVIDERS_EMAIL_WEBHOOKS_REGISTER_EVENT|}
 
   magiclink:
-    loginEvent:
-      url: ${PROVIDERS_MAGICLINK_WEBHOOKS_LOGIN_EVENT}
+    enabled: ${PROVIDERS_MAGICLINK_ENABLED|}
+    webhooks:
+      loginEvent:
+        url: ${PROVIDERS_MAGICLINK_WEBHOOKS_LOGIN_EVENT|}

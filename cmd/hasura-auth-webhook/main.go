@@ -12,13 +12,11 @@ import (
 )
 
 const (
-	defaultConfigfileV1 = "config.yaml"
-	defaultConfigfileV2 = "config.v2.yaml"
+	defaultConfigFilename = "config.yaml"
 )
 
 func main() {
 	debug := flag.Bool("debug", false, "enable debug mode")
-	configVersion := flag.Int("config-version", 2, "enable file config v2")
 	configFile := flag.String("config-file", "", "config file path")
 
 	flag.Parse()
@@ -29,21 +27,10 @@ func main() {
 
 	var conf *config.Config
 
-	if *configVersion == 1 {
-		if *configFile == "" {
-			conf, _ = config.NewConfig(defaultConfigfileV1)
-		} else {
-			conf, _ = config.NewConfig(*configFile)
-		}
-	} else if *configVersion == 2 {
-		var confV2 *config.Config2
-		if *configFile == "" {
-			confV2, _ = config.NewConfigV2(defaultConfigfileV2)
-		} else {
-			confV2, _ = config.NewConfigV2(*configFile)
-		}
-
-		conf = config.ConfigV2ToConfigV1(confV2)
+	if *configFile == "" {
+		conf, _ = config.NewConfig(defaultConfigFilename)
+	} else {
+		conf, _ = config.NewConfig(*configFile)
 	}
 
 	client, err := db.OpenDBClient(conf)
@@ -53,8 +40,8 @@ func main() {
 	defer client.Close()
 
 	secretSource := auth.RawSecret(
-		[]byte(conf.JWT.AccessSecret),
-		[]byte(conf.JWT.RefreshSecret),
+		[]byte(conf.Providers.Email.JWT.AccessSecret),
+		[]byte(conf.Providers.Email.JWT.RefreshSecret),
 	)
 
 	// var anonymous *auth.AnonymousRole

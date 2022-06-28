@@ -49,7 +49,12 @@ func NewPublicServer(client *ent.Client, auth *auth.AuthManager, conf *config.Co
 		Client:     client,
 		Auth:       auth,
 		HTTPCLient: resty.New(),
-		Refresh:    (*RefreshCookie)(conf.Refresh),
+		Refresh:    &RefreshCookie{
+			Name: conf.Providers.Email.JWT.RefreshOptions.Name,
+			Domain: conf.Providers.Email.JWT.RefreshOptions.Domain,
+			Secure: conf.Providers.Email.JWT.RefreshOptions.Secure,
+			HttpOnly: conf.Providers.Email.JWT.RefreshOptions.HttpOnly,
+		},
 		Config:     conf,
 
 		cache:    cache.New(5*time.Second, 10*time.Second),

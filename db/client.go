@@ -15,21 +15,21 @@ import (
 )
 
 func openEntClient(c *config.Config) (*ent.Client, error) {
-	db, err := dburl.Open(c.DB.URL)
+	db, err := dburl.Open(c.Database.URL)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	var driver *entsql.Driver = nil
 
-	if strings.HasPrefix(c.DB.URL, "postgres") {
+	if strings.HasPrefix(c.Database.URL, "postgres") {
 		driver = entsql.OpenDB(dialect.Postgres, db)
-	} else if strings.HasPrefix(c.DB.URL, "sqlite") {
+	} else if strings.HasPrefix(c.Database.URL, "sqlite") {
 		driver = entsql.OpenDB(dialect.SQLite, db)
 	}
 
 	if driver == nil {
-		return nil, fmt.Errorf("invalid sql dialect. '%s' url not supported", c.DB.URL)
+		return nil, fmt.Errorf("invalid sql dialect. '%s' url not supported", c.Database.URL)
 	}
 
 	return ent.NewClient(ent.Driver(driver)), nil
