@@ -25,17 +25,7 @@ func NewConfig(filepaths ...string) (*Config, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	c := new(Config)
-
-	return c, config.BindStruct("", c)
-}
-
-func NewConfigV2(filepaths ...string) (*Config2, error) {
-	if err := initConfig(filepaths...); err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	conf := new(Config2)
+	conf := new(Config)
 
 	return conf, config.BindStruct("", conf)
 }
