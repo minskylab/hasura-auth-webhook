@@ -1,14 +1,11 @@
 package config
 
-type Config struct {
-	API        API        `yaml:"api"`
-	Refresh    *Refresh   `yaml:"refresh"`
-	DB         DB         `yaml:"db"`
-	JWT        JWT        `yaml:"jwt"`
-	Admin      Admin      `yaml:"admin"`
-	Anonymous  *Anonymous `yaml:"admin"`
-	Roles      []Role     `yaml:"roles,mapstructure"`
-	Mailersend Mailersend `yaml:"mailersend"`
+type JWT struct {
+	AccessSecret         string         `yaml:"accessSecret"`
+	RefreshSecret        string         `yaml:"refreshSecret"`
+	RefreshOptions       RefreshOptions `yaml:"refreshOptions"`
+	AccessTokenDuration  string         `yaml:"accessTokenDuration"`
+	RefreshTokenDuration string         `yaml:"refreshTokenDuration"`
 }
 
 type Refresh struct {
@@ -60,9 +57,45 @@ type Role struct {
 	Public   bool     `yaml:"public,omitempty"`
 }
 
+<<<<<<< Updated upstream
 type User struct {
 	Email    string `yaml:"email"`
 	Password string `yaml:"password"`
+=======
+type EmailProvider struct {
+	Enabled  bool          `yaml:"enabled"`
+	JWT      JWT           `yaml:"jwt"`
+	Webhooks EmailWebhooks `yaml:"webhooks"`
+}
+
+type MagicLinkProvider struct {
+	Enabled  bool              `yaml:"enabled"`
+	Webhooks MagicLinkWebhooks `yaml:"webhooks"`
+}
+
+type Providers struct {
+	Email     EmailProvider     `yaml:"email"`
+	MagicLink MagicLinkProvider `yaml:"magicLink"`
+}
+
+type Config struct {
+	Database  Database  `yaml:"database"`
+	API       API       `yaml:"api"`
+	Admin     Admin     `yaml:"admin"`
+	Roles     []Role    `yaml:"roles,mapstructure"`
+	Providers Providers `yaml:"providers"`
+	Webhooks  Webhooks  `yaml:"webhooks"`
+}
+
+type Webhooks struct {
+	Email     EmailWebhooks     `yaml:"email"`
+	MagicLink MagicLinkWebhooks `yaml:"magicLink"`
+}
+
+type EmailWebhooks struct {
+	RecoveryPasswordEvent Webhook `yaml:"recoveryPasswordEvent"`
+	RegisterEvent         Webhook `yaml:"registerEvent"`
+>>>>>>> Stashed changes
 }
 
 type UserInfo struct {
