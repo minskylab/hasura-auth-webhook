@@ -36,7 +36,7 @@ func New(source SecretSource, conf *config.Config) (*AuthManager, error) { // an
 
 	refreshTokenDuration, err := time.ParseDuration(refreshTokenDurationString)
 	if err != nil {
-		logrus.Warn("error at parsing access token duration, using default value")
+		logrus.Warn("error at parsing refresh token duration, using default value")
 		refreshTokenDuration = defaultRefreshTokenDuration
 	}
 

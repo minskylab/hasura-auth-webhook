@@ -27,7 +27,7 @@ providers:
       accessSecret: ${PROVIDERS_EMAIL_JWT_ACCESS_SECRET|change-me-please}
       refreshSecret: ${PROVIDERS_EMAIL_JWT_REFRESH_SECRET|change-me-please}
       accessTokenDuration: ${PROVIDERS_EMAIL_JWT_ACCESS_TOKEN_DURATION|15m}
-      refreshTokenDuration: ${PROVIDERS_EMAIL_JWT_REFRESH_TOKEN_DURATION|30d}
+      refreshTokenDuration: ${PROVIDERS_EMAIL_JWT_REFRESH_TOKEN_DURATION|360h}
     webhooks:
       recoveryPasswordEvent:
         url: ${PROVIDERS_EMAIL_WEBHOOKS_RECOVERY_PASSWORD_EVENT|}
