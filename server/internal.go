@@ -43,20 +43,21 @@ func (s *InternalServer) Port() int {
 func (s *InternalServer) HasuraWebhook(ctx *fiber.Ctx) error {
 	authorizationHeader := ctx.Get(authorizationHeaderName)
 
-	anonymous := s.auth.GetAnonymous()
-	withAnonymousAllowed := anonymous != nil
+	// anonymous := s.auth.GetAnonymous()
+	// withAnonymousAllowed := anonymous != nil
 	withBearerToken := strings.HasPrefix(authorizationHeader, bearerTokenWord)
 
-	if !withBearerToken && !withAnonymousAllowed {
+	// if !withBearerToken && !withAnonymousAllowed {
+	if !withBearerToken {
 		return errorResponse(ctx.Status(401), errors.New("header not found"))
 	}
 
-	if !withBearerToken && withAnonymousAllowed {
-		return ctx.Status(200).JSON(services.HasuraWebhookResponse{
-			HasuraUserId: "",
-			HasuraRole:   anonymous.Name,
-		})
-	}
+	// if !withBearerToken && withAnonymousAllowed {
+	// 	return ctx.Status(200).JSON(services.HasuraWebhookResponse{
+	// 		HasuraUserId: "",
+	// 		HasuraRole:   anonymous.Name,
+	// 	})
+	// }
 
 	receivedAccessToken := strings.TrimSpace(strings.ReplaceAll(authorizationHeader, bearerTokenWord, ""))
 
@@ -92,20 +93,20 @@ func (s *InternalServer) HasuraWebhook(ctx *fiber.Ctx) error {
 	return ctx.Status(200).JSON(res)
 }
 
-func (s *InternalServer) ListUsers(ctx *fiber.Ctx) error {
-	users, err := s.client.User.Query().WithRoles().All(ctx.Context())
-	if err != nil {
-		return errorResponse(ctx.Status(401), errors.Wrap(err, "users could not be found"))
-	}
+// func (s *InternalServer) ListUsers(ctx *fiber.Ctx) error {
+// 	users, err := s.client.User.Query().WithRoles().All(ctx.Context())
+// 	if err != nil {
+// 		return errorResponse(ctx.Status(401), errors.Wrap(err, "users could not be found"))
+// 	}
 
-	// TODO: parse parse json response
-	// res := []services.User{
-	// 	services.User {
-	// 	}
-	// }
+// 	// TODO: parse parse json response
+// 	// res := []services.User{
+// 	// 	services.User {
+// 	// 	}
+// 	// }
 
-	return ctx.Status(200).JSON(users)
-}
+// 	return ctx.Status(200).JSON(users)
+// }
 
 func (s *InternalServer) Me(ctx *fiber.Ctx) error {
 	authorizationHeader := ctx.Get(authorizationHeaderName)

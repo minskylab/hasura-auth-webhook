@@ -35,18 +35,18 @@ func (e *Engine) PublicFiberApp() *fiber.App {
 func (e *Engine) InternalFiberApp() *fiber.App {
 	app := fiber.New()
 	app.Use(logger.New())
-	app.Use(cors.New(cors.Config{
-		Next:             nil,
-		AllowOrigins:     "*",
-		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
-		AllowHeaders:     "",
-		AllowCredentials: true,
-		ExposeHeaders:    "",
-		MaxAge:           0,
-	}))
+	// app.Use(cors.New(cors.Config{
+	// 	Next:             nil,
+	// 	AllowOrigins:     "*",
+	// 	AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
+	// 	AllowHeaders:     "",
+	// 	AllowCredentials: true,
+	// 	ExposeHeaders:    "",
+	// 	MaxAge:           0,
+	// }))
 
 	app.Get("/validate", e.InternalService.HasuraWebhook)
-	app.Get("/users", e.InternalService.ListUsers)
+	// app.Get("/users", e.InternalService.ListUsers)
 	app.Get("/me", e.InternalService.Me)
 
 	return app

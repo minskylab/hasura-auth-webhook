@@ -1,6 +1,10 @@
 package config
 
+<<<<<<< HEAD
 type JWT struct {
+=======
+type JWT2 struct {
+>>>>>>> 5e9742aa797eb14dbea4e096bd32c5aa8abce663
 	AccessSecret         string         `yaml:"accessSecret"`
 	RefreshSecret        string         `yaml:"refreshSecret"`
 	RefreshOptions       RefreshOptions `yaml:"refreshOptions"`
@@ -8,20 +12,25 @@ type JWT struct {
 	RefreshTokenDuration string         `yaml:"refreshTokenDuration"`
 }
 
-type Refresh struct {
+type RefreshOptions struct {
 	Name     string `yaml:"name"`
 	Domain   string `yaml:"domain"`
 	Secure   bool   `yaml:"secure"`
 	HttpOnly bool   `yaml:"httpOnly"`
 }
 
-type DB struct {
+type Database struct {
 	URL string `yaml:"url"`
 }
 
-type JWT struct {
-	AccessSecret  string `yaml:"accessSecret"`
-	RefreshSecret string `yaml:"refreshSecret"`
+type User struct {
+	Email    string `yaml:"email"`
+	Password string `yaml:"password"`
+}
+
+type API struct {
+	Public   Public   `yaml:"public"`
+	Internal Internal `yaml:"internal"`
 }
 
 type Public struct {
@@ -34,17 +43,8 @@ type Internal struct {
 	Port     int    `yaml:"port"`
 }
 
-type API struct {
-	Public   Public   `yaml:"public"`
-	Internal Internal `yaml:"internal"`
-}
-
 type Admin struct {
 	Users []User `yaml:"users,flow,omitempty"`
-}
-
-type Anonymous struct {
-	Name string `yaml:"name"`
 }
 
 type Role struct {
@@ -57,6 +57,7 @@ type Role struct {
 	Public   bool     `yaml:"public,omitempty"`
 }
 
+<<<<<<< HEAD
 <<<<<<< Updated upstream
 type User struct {
 	Email    string `yaml:"email"`
@@ -96,18 +97,67 @@ type EmailWebhooks struct {
 	RecoveryPasswordEvent Webhook `yaml:"recoveryPasswordEvent"`
 	RegisterEvent         Webhook `yaml:"registerEvent"`
 >>>>>>> Stashed changes
+=======
+type EmailProvider struct {
+	Enabled  bool          `yaml:"enabled"`
+	JWT      JWT2          `yaml:"jwt"`
+	Webhooks EmailWebhooks `yaml:"webhooks"`
+>>>>>>> 5e9742aa797eb14dbea4e096bd32c5aa8abce663
 }
 
-type UserInfo struct {
-	Name  string `yaml:"name"`
-	Email string `yaml:"email"`
+type MagicLinkProvider struct {
+	Enabled  bool              `yaml:"enabled"`
+	Webhooks MagicLinkWebhooks `yaml:"webhooks"`
 }
 
-type Mailersend struct {
-	Key      string   `yaml:"key"`
-	Template string   `yaml:"template"`
-	Support  string   `yaml:"support"`
-	Name     string   `yaml:"name"`
-	User     UserInfo `yaml:"user"`
-	Url      string   `yaml:"url"`
+type Providers struct {
+	Email     EmailProvider     `yaml:"email"`
+	MagicLink MagicLinkProvider `yaml:"magicLink"`
 }
+
+type Config struct {
+	Database  Database  `yaml:"database"`
+	API       API       `yaml:"api"`
+	Admin     Admin     `yaml:"admin"`
+	Roles     []Role    `yaml:"roles,mapstructure"`
+	Providers Providers `yaml:"providers"`
+	Webhooks  Webhooks  `yaml:"webhooks"`
+}
+
+type Webhooks struct {
+	Email     EmailWebhooks     `yaml:"email"`
+	MagicLink MagicLinkWebhooks `yaml:"magicLink"`
+}
+
+type EmailWebhooks struct {
+	RecoveryPasswordEvent Webhook `yaml:"recoveryPasswordEvent"`
+	RegisterEvent         Webhook `yaml:"registerEvent"`
+}
+
+type MagicLinkWebhooks struct {
+	LoginEvent Webhook `yaml:"loginEvent"`
+}
+
+type Webhook struct {
+	URL     string            `yaml:"url"`
+	Headers map[string]string `yaml:"headers"`
+}
+
+// func ConfigV2ToConfigV1(c *Config2) *Config {
+// 	confV1 := new(Config)
+// 	confV1.API = c.API
+// 	confV1.DB = c.Database
+// 	confV1.Admin = c.Admin
+// 	confV1.JWT = JWT{
+// 		AccessSecret:  c.Providers.Email.JWT.AccessSecret,
+// 		RefreshSecret: c.Providers.Email.JWT.RefreshSecret,
+// 	}
+// 	confV1.Refresh = &c.Providers.Email.JWT.RefreshOptions
+// 	confV1.Roles = c.Roles
+// 	confV1.Webhooks = Webhooks{
+// 		Email:     c.Providers.Email.Webhooks,
+// 		MagicLink: c.Providers.MagicLink.Webhooks,
+// 	}
+
+// 	return confV1
+// }

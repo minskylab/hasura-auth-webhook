@@ -26,11 +26,11 @@ func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, conf *c
 			Public: false,
 		}
 
-		anonymousRole := config.Role{
-			Name:   conf.Anonymous.Name,
-			Users:  []config.User{},
-			Public: true,
-		}
+		// anonymousRole := config.Role{
+		// 	Name:   conf.Anonymous.Name,
+		// 	Users:  []config.User{},
+		// 	Public: true,
+		// }
 
 		for _, r := range conf.Roles {
 			adminRole.Children = append(adminRole.Children, r.Name)
@@ -38,7 +38,8 @@ func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, conf *c
 
 		mapEntityRoles := make(map[string]*ent.Role)
 
-		allRoles := append(conf.Roles, adminRole, anonymousRole)
+		// allRoles := append(conf.Roles, adminRole, anonymousRole)
+		allRoles := append(conf.Roles, adminRole) //, anonymousRole)
 
 		{
 			mapRoles := make(map[string]*config.Role)
@@ -84,7 +85,6 @@ func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, conf *c
 
 		for _, r := range allRoles {
 			var parents []*ent.Role
-			var children []*ent.Role
 
 			rolEntity := mapEntityRoles[r.Name]
 
@@ -95,26 +95,12 @@ func CreateNewEngine(client *ent.Client, authInstance *auth.AuthManager, conf *c
 					parents = append(parents, parentRol)
 				}
 			}
+
 			for _, p := range r.Parents {
 				if parentRol, ok := mapEntityRoles[p]; !ok {
 					log.Warnf("unknown parent")
 				} else {
 					parents = append(parents, parentRol)
-				}
-			}
-
-			if r.Child != nil {
-				if childRol, ok := mapEntityRoles[*r.Child]; !ok {
-					log.Warnf("unknown child")
-				} else {
-					children = append(children, childRol)
-				}
-			}
-			for _, c := range r.Children {
-				if childRol, ok := mapEntityRoles[c]; !ok {
-					log.Warnf("unknown child")
-				} else {
-					children = append(children, childRol)
 				}
 			}
 
