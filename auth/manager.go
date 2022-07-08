@@ -26,18 +26,12 @@ type AnonymousRole struct {
 }
 
 // DispatchToken use to dispatch a simple jwt token.
-func (auth *AuthManager) DispatchAccessToken(forUser *ent.User, duration ...time.Duration) (string, error) {
-	if len(duration) == 0 {
-		return newToken(forUser.ID.String(), auth.accessSecret, auth.accessTokenDuration)
-	}
-	return newToken(forUser.ID.String(), auth.accessSecret, duration[0])
+func (auth *AuthManager) DispatchAccessToken(forUser *ent.User) (string, error) {
+	return newToken(forUser.ID.String(), auth.accessSecret, auth.accessTokenDuration)
 }
 
-func (auth *AuthManager) DispatchRefreshToken(forUser *ent.User, duration ...time.Duration) (string, error) {
-	if len(duration) == 0 {
-		return newToken(forUser.ID.String(), auth.refreshSecret, auth.refreshTokenDuration)
-	}
-	return newToken(forUser.ID.String(), auth.refreshSecret, duration[0])
+func (auth *AuthManager) DispatchRefreshToken(forUser *ent.User) (string, error) {
+	return newToken(forUser.ID.String(), auth.refreshSecret, auth.refreshTokenDuration)
 }
 
 // ValidateToken validates an existent jwt token.

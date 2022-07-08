@@ -5,7 +5,7 @@ type JWT2 struct {
 	RefreshSecret        string         `yaml:"refreshSecret"`
 	RefreshOptions       RefreshOptions `yaml:"refreshOptions"`
 	AccessTokenDuration  string         `yaml:"accessTokenDuration"`
-	RefreshTOkenDuration string         `yaml:"refreshTokenDuration"`
+	RefreshTokenDuration string         `yaml:"refreshTokenDuration"`
 }
 
 type RefreshOptions struct {
@@ -75,7 +75,7 @@ type Config struct {
 	Admin     Admin     `yaml:"admin"`
 	Roles     []Role    `yaml:"roles,mapstructure"`
 	Providers Providers `yaml:"providers"`
-	Webhooks Webhooks `yaml:"webhooks"`
+	Webhooks  Webhooks  `yaml:"webhooks"`
 }
 
 type Webhooks struct {

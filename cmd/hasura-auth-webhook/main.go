@@ -52,7 +52,7 @@ func main() {
 	// }
 
 	// authManager, err := auth.New(secretSource, anonymous)
-	authManager, err := auth.New(secretSource)
+	authManager, err := auth.New(secretSource, conf)
 	if err != nil {
 		logrus.Panicf("%+v", err)
 	}
