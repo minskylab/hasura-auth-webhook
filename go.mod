@@ -3,7 +3,7 @@ module github.com/minskylab/hasura-auth-webhook
 go 1.18
 
 require (
-	entgo.io/ent v0.10.2-0.20220502113020-4ac82f5bb3f0
+	entgo.io/ent v0.11.1
 	github.com/gofiber/fiber/v2 v2.35.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/lib/pq v1.10.6
@@ -28,7 +28,7 @@ require (
 )
 
 require (
-	ariga.io/atlas v0.4.2 // indirect
+	ariga.io/atlas v0.5.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
