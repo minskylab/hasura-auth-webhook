@@ -12,8 +12,8 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/xo/dburl v0.11.0
-	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
-	golang.org/x/sys v0.0.0-20220704084225-05e143d24a9e // indirect
+	golang.org/x/crypto v0.7.0
+	golang.org/x/sys v0.15.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
 
@@ -29,25 +29,35 @@ require (
 
 require (
 	ariga.io/atlas v0.4.2 // indirect
+	dario.cat/mergo v1.0.0 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
+	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
+	github.com/fatih/color v1.14.1 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
-	github.com/google/go-cmp v0.5.8 // indirect
-	github.com/gookit/goutil v0.5.5 // indirect
-	github.com/hashicorp/hcl/v2 v2.13.0 // indirect
+	github.com/goccy/go-yaml v1.11.2 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
+	github.com/gookit/color v1.5.4 // indirect
+	github.com/gookit/goutil v0.6.15 // indirect
+	github.com/hashicorp/hcl/v2 v2.19.1 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
-	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
-	github.com/zclconf/go-cty v1.10.0 // indirect
-	golang.org/x/mod v0.5.1 // indirect
-	golang.org/x/net v0.0.0-20220706163947-c90051bbdb60 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
+	github.com/zclconf/go-cty v1.13.0 // indirect
+	golang.org/x/mod v0.8.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
+	golang.org/x/sync v0.5.0 // indirect
+	golang.org/x/term v0.15.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 )
 
 require (
 	github.com/go-resty/resty/v2 v2.7.0
-	github.com/gookit/config/v2 v2.1.2
+	github.com/gookit/config/v2 v2.2.5
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
