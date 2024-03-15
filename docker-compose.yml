@@ -32,7 +32,7 @@ services:
       HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
       HASURA_GRAPHQL_AUTH_HOOK: http://auth:1111/validate
       HASURA_GRAPHQL_AUTH_HOOK_MODE: GET
-    image: hasura/graphql-engine:v2.0.0-beta.1
+    image: hasura/graphql-engine:v2.38.0-beta.1
     ports:
       - "8081:8080"
     restart: unless-stopped
