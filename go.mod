@@ -1,6 +1,6 @@
 module github.com/minskylab/hasura-auth-webhook
 
-go 1.18
+go 1.22
 
 require (
 	entgo.io/ent v0.10.2-0.20220502113020-4ac82f5bb3f0
@@ -11,7 +11,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/xo/dburl v0.11.0
+	github.com/xo/dburl v0.24.2
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d
 	golang.org/x/sys v0.0.0-20220704084225-05e143d24a9e // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
