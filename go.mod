@@ -1,6 +1,6 @@
 module github.com/minskylab/hasura-auth-webhook
 
-go 1.18
+go 1.24
 
 require (
 	entgo.io/ent v0.10.2-0.20220502113020-4ac82f5bb3f0
@@ -20,7 +20,7 @@ require (
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/klauspost/compress v1.15.7 // indirect
+	github.com/klauspost/compress v1.18.7 // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.38.0 // indirect
